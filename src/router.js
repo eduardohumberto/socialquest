@@ -1,18 +1,19 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-import Hello from '@/Hello.vue'
+// import Hello from '@/Hello.vue'
 
 Vue.use(VueRouter)
 
 /*
  * Uncomment this section and use "load()" if you want
  * to lazy load routes.
+ */
+
 function load (component) {
   // '@' is aliased to src/components
   return () => import(`@/${component}.vue`)
 }
-*/
 
 export default new VueRouter({
   /*
@@ -28,6 +29,15 @@ export default new VueRouter({
    */
 
   routes: [
-    { path: '/', component: Hello }
+    { path: '/login', component: load('Login'), name: 'login' },
+    { path: '/app',
+      component: load('Index'),
+      children: [
+        { path: '', component: load('Home'), name: 'app' },
+        { path: 'home', component: load('Home') }
+      ]
+    },
+    { path: '/', redirect: { name: 'login' } },
+    { path: '*', component: load('Error404') } // Not found
   ]
 })
