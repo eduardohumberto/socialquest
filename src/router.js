@@ -30,6 +30,7 @@ export default new VueRouter({
 
   routes: [
     { path: '/login', component: load('Login'), name: 'login' },
+    { path: '/register', component: load('Register'), name: 'register' },
     { path: '/app',
       component: load('Index'),
       children: [

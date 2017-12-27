@@ -2,9 +2,8 @@
   <q-layout class="bg-grey-3">
     <div class="row">
       <q-card class="col-md-4 offset-md-4 size-card bg-white">
-        <q-card-title class="bg-blue text-white">
-          <img src="~assets/main-logo.png" class="img-size center">
-          <h4 class="text-center" >Lean Tools</h4>
+        <q-card-title class="bg-blue-6 text-white">
+          <h4 class="text-center" >Social Quest</h4>
         </q-card-title>
         <br>
         <q-card-main>
@@ -13,7 +12,8 @@
         </q-card-main>
         <br>
         <q-card-actions>
-          <q-btn @click="login" color="primary" class="round margin-min">Login</q-btn>
+          <q-btn @click="login" color="primary" class="round full-width margin-min">Login</q-btn>
+          <q-btn @click="toRegister" color="secondary" class="round full-width margin-min">Registrar</q-btn>
         </q-card-actions>
       </q-card>
     </div>
@@ -28,7 +28,11 @@
     QCardSeparator,
     QCardActions,
     QInput,
-    QBtn
+    QBtn,
+    QItem,
+    QItemSide,
+    QItemMain,
+    QSideLink
   } from 'quasar'
   export default {
     name: 'login',
@@ -40,7 +44,11 @@
       QCardSeparator,
       QCardActions,
       QInput,
-      QBtn
+      QBtn,
+      QItem,
+      QItemSide,
+      QItemMain,
+      QSideLink
     },
     data () {
       return {
@@ -59,6 +67,9 @@
         //   console.log(error)
         // })
         this.$router.push('/app')
+      },
+      toRegister () {
+        this.$router.push('/register')
       }
     },
     computed: {
@@ -82,7 +93,6 @@
     margin-right:auto;
   }
   .margin-min {
-    width: 80%;
-    margin: 5% 10% 5% 10%;
+    margin: 5px;
   }
 </style>

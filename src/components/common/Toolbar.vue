@@ -7,10 +7,10 @@
     <q-icon name="menu" />
   </q-btn>
   <q-toolbar-title>
-    Lean Web App Tools
-    <div slot="subtitle">Tools to Improve your Lean Thinking</div>
+    Social Quest
+    <div slot="subtitle">Pergunte e responda questões de todos sobre tudo</div>
   </q-toolbar-title>
-  <q-btn flat @click="logout()">Logout</q-btn>
+  <!-- q-btn flat @click="logout()">Logout</q-btn-->
 </q-toolbar>
 </template>
 
