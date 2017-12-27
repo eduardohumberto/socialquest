@@ -35,7 +35,7 @@ module.exports = {
   },
   module: {
     rules: [
-      { // eslint
+      /* { // eslint
         enforce: 'pre',
         test: /\.(vue|js)$/,
         loader: 'eslint-loader',
@@ -44,7 +44,7 @@ module.exports = {
         options: {
           formatter: require('eslint-friendly-formatter')
         }
-      },
+      }, */
       {
         test: /\.js$/,
         loader: 'babel-loader',

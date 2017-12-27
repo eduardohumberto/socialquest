@@ -17,12 +17,13 @@
           <p v-if="!$v.email.required  && $v.email.$dirty">Email é obrigatório.</p>
           <q-input
               float-label="CPF"
-              type="number"
+              type="text"
               id="cpf"
               @blur="$v.cpf.$touch()"
               :error="$v.cpf.$error"
-              v-model.number="cpf"></q-input>
-            <p v-if="!$v.cpf.minVal">Digite um CPF Válido.</p>
+              v-mask="'###.###.###-##'"
+              v-model="cpf"></q-input>
+            <p v-if="!$v.cpf.minLen">Digite um CPF Válido.</p>
           <q-input
              float-label="Senha"
              type="password"
@@ -65,9 +66,11 @@
     Toast
   } from 'quasar'
   import { required, email, numeric, minValue, minLength, sameAs } from 'vuelidate/lib/validators'
+  import { mask } from 'vue-the-mask'
 
   export default {
     name: 'register',
+    directives: {mask},
     components: {
       QLayout,
       QCard,
@@ -103,8 +106,7 @@
       },
       cpf: {
         required,
-        numeric,
-        minVal: minValue(18)
+        minLen: minLength(14)
       },
       password: {
         required,
@@ -118,18 +120,20 @@
     },
     methods: {
       submit () {
-        console.log(this.$v)
         if (this.$v.$invalid) {
-          Toast.create('Please review fields again.')
+          Toast.create('Por favor preencha o formulário corretamente.')
         }
-        // this.$store.dispatch('login', {
-        //   email: this.email,
-        //   password: this.password
-        // }).then(() => {
-        //   this.$router.push('/app')
-        // }).catch((error) => {
-        //   console.log(error)
-        // })
+
+        this.$store.dispatch('auth/signup', {
+          email: this.email,
+          cpf: this.cpf,
+          password: this.password
+        }).then(() => {
+          this.$router.push('/app')
+        }).catch((error) => {
+          console.log(error)
+          this.$router.push('/')
+        })
       }
     },
     computed: {

@@ -8,12 +8,12 @@
         <br>
         <q-card-main>
           <q-input type="text" v-model="email" float-label="E-mail" ></q-input>
-          <q-input type="text" v-model="password" float-label="Password" ></q-input>
+          <q-input type="password" v-model="password" float-label="Password" ></q-input>
         </q-card-main>
         <br>
         <q-card-actions>
           <q-btn @click="login" color="primary" class="round full-width margin-min">Login</q-btn>
-          <q-btn @click="toRegister" color="secondary" class="round full-width margin-min">Registrar</q-btn>
+          <q-btn @click="toRegister" color="secondary" class="round full-width margin-min">Cadastre-se</q-btn>
         </q-card-actions>
       </q-card>
     </div>
@@ -32,8 +32,10 @@
     QItem,
     QItemSide,
     QItemMain,
-    QSideLink
+    QSideLink,
+    Toast
   } from 'quasar'
+
   export default {
     name: 'login',
     components: {
@@ -58,15 +60,19 @@
     },
     methods: {
       login () {
-        // this.$store.dispatch('login', {
-        //   email: this.email,
-        //   password: this.password
-        // }).then(() => {
-        //   this.$router.push('/app')
-        // }).catch((error) => {
-        //   console.log(error)
-        // })
-        this.$router.push('/app')
+        if (this.password === '' || this.email === '') {
+          Toast.create('Email e senha são obrigatórios')
+        }
+
+        this.$store.dispatch('auth/login', {
+          email: this.email,
+          password: this.password
+        }).then(() => {
+          this.$router.push('/app')
+        }).catch((error) => {
+          Toast.create('Usuário ou senha inválidos')
+          this.$router.push('/')
+        })
       },
       toRegister () {
         this.$router.push('/register')

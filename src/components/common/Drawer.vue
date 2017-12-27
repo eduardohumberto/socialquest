@@ -32,10 +32,9 @@
         <q-item-side icon="info" />
         <q-item-main label="Info" sublabel="Informações da aplicação" />
       </q-side-link>
-      <q-side-link item to="/app/kanban">
-        <q-item-side icon="power_settings_new" />
-        <q-item-main label="Sair" />
-      </q-side-link>
+      <q-btn color="primary" @click="logout" icon="power_settings_new" class="full-width">
+        Sair
+      </q-btn>
     </q-list>
   </div>
 </template>
@@ -48,7 +47,8 @@
     QItem,
     QItemSide,
     QItemMain,
-    QSideLink
+    QSideLink,
+    QBtn
   } from 'quasar'
 
   export default {
@@ -60,7 +60,13 @@
       QItem,
       QItemSide,
       QItemMain,
-      QSideLink
+      QSideLink,
+      QBtn
+    },
+    methods:{
+      logout(){
+        this.$store.dispatch('auth/logout')
+      }
     }
   }
 </script>
