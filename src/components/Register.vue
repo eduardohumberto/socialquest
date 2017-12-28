@@ -43,7 +43,11 @@
         </q-card-main>
         <br>
         <q-card-actions>
-          <q-btn @click="submit" color="primary" class="round margin-min">Registrar</q-btn>
+          <q-btn
+            @click="submit"
+            color="primary"
+            icon-right="send"
+            class="round margin-min">Registrar</q-btn>
         </q-card-actions>
       </q-card>
     </div>
@@ -123,6 +127,7 @@
       submit () {
         if (this.$v.$invalid) {
           Toast.create('Por favor preencha o formulário corretamente.')
+          return false
         }
 
         Loading.show()

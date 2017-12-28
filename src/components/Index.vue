@@ -11,7 +11,14 @@
       <router-view /> component
       if using subRoutes
     -->
-    <router-view class="layout-view"></router-view>
+    <transition
+      name="transitions"
+      enter-active-class="animated slideInUp"
+      leave-active-class="animated fadeOut"
+      mode="out-in"
+    >
+      <router-view class="layout-view"></router-view>
+    </transition>
     <!-- Navigation -->
     <q-tabs slot="footer" align="center" >
       <q-route-tab slot="title" icon="whatshot" to="/app/hottest" replace  label="" />
@@ -25,6 +32,7 @@
 
 <script>
   import {
+    QTransition,
     QLayout,
     Events,
     QTabs,
@@ -40,6 +48,7 @@
   export default {
     name: 'index',
     components: {
+      QTransition,
       QLayout,
       Toolbar,
       Drawer,

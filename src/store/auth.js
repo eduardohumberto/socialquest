@@ -63,7 +63,7 @@ export default {
     },
     storeUser ({state,commit}, userData) {
       if (state.user) {
-        return
+        return false;
       }
       let user = usersRef.push(userData)
       commit('storeUser', userData)

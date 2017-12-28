@@ -30,7 +30,7 @@
            Alternativas são obrigatórios
          </p>
          <p style="font-size: 10px" v-if="!$v.alternatives.maxLen">
-           O nome deverá ter apenas 140 caracteres
+           O máximo de alternativas são 10
          </p>
        </q-field>
 
@@ -40,15 +40,34 @@
                      :hide-upload-button="true"
                      :hide-upload-progress="true"
                      @add="addFiles"
+                     @remove:cancel="remove"
                      :extensions="'.gif,.jpg,.jpeg,.png'"/>
        </q-field>
-
+       <q-btn
+         @click="submit"
+         icon-right="send"
+         color="primary"
+         class="round full-width margin-min">Salvar</q-btn>
      </div>
   </div>
 </template>
 <script>
-  import { QField, QDatetime, QInput, QSelect, QChipsInput, QRating, QUploader } from 'quasar'
+  import { QField, QDatetime, QInput, QSelect, QChipsInput, QRating, QUploader, QBtn, Toast, Loading } from 'quasar'
   import { required, maxLength, minValue, minLength } from 'vuelidate/lib/validators'
+
+  const modelAlternatives = ( arrayAlternativesDefault ) => {
+    let arrayAlternatives = []
+    let objectDefault = {
+      name: '',
+      votes:[]
+    }
+
+    for (let alternative of arrayAlternativesDefault) {
+      objectDefault.name = alternative
+      arrayAlternatives.push( objectDefault );
+    }
+    return arrayAlternatives;
+  }
 
   export default {
     components: {
@@ -58,7 +77,8 @@
       QSelect,
       QChipsInput,
       QRating,
-      QUploader
+      QUploader,
+      QBtn
     },
     data () {
       return {
@@ -87,7 +107,47 @@
     },
     methods: {
       addFiles(file) {
-        this.cover = file
+        this.cover = file[0]
+      },
+      remove(file){
+        this.cover = ''
+      },
+      submit () {
+        if (this.$v.$invalid) {
+          Toast.create('Por favor preencha o formulário corretamente.')
+          return false
+        }
+
+        Loading.show()
+        if ( this.cover !== '' ) {
+          this.$store.dispatch('upload/upload', this.cover)
+            .then((url) => {
+              this.insert( url )
+            })
+            .catch((error) => {
+              Loading.hide()
+              console.log(error)
+            })
+        }else{
+          this.insert(this.cover)
+        }
+      },
+      insert(image){
+        let user = this.$store.getters['auth/user']
+        this.$store.dispatch('quest/create', {
+          name: this.name,
+          description: this.description,
+          alternatives: modelAlternatives( this.alternatives ),
+          image: image,
+          user: user.uid
+        }).then(() => {
+          Loading.hide()
+          this.$router.push('/app/list-my-quests')
+        }).catch((error) => {
+          Loading.hide()
+          console.log(error)
+          this.$router.push('/app')
+        })
       }
     }
   }
