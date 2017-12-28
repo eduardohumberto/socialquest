@@ -35,19 +35,20 @@ export default {
           )
       })
     },
-    login ({commit}, authData) {
+    login ({commit,dispatch}, authData) {
       return new Promise((resolve, reject) => {
         firebase.auth()
           .signInWithEmailAndPassword(authData.email, authData.password)
           .then(
             user => {
               // this.$router.replace('dashboard');
-              let dbRef = "users/email/"+ authData.email;
-              db.ref(dbRef).once('value', snap => {
-                console.log(snap.val(), dbRef);
-                commit('storeUser', snap);
-                resolve(user)
-              })
+              usersRef.orderByChild('email').equalTo(authData.email).on('value', function(snapshot) {
+                let user = snapshot.val()
+                for ( let index in user){
+                  commit('storeUser', user[index])
+                  resolve(user[index])
+                }
+              });
             },
             error => {
               reject(error.message)
@@ -65,8 +66,7 @@ export default {
         return
       }
       let user = usersRef.push(userData)
-      commit('storeUser', user)
-      console.log( user )
+      commit('storeUser', userData)
     }
   },
   getters: {

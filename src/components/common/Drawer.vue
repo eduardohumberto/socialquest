@@ -32,9 +32,16 @@
         <q-item-side icon="info" />
         <q-item-main label="Info" sublabel="Informações da aplicação" />
       </q-side-link>
-      <q-btn color="primary" @click="logout" icon="power_settings_new" class="full-width">
-        Sair
-      </q-btn>
+      <div class="q-item q-item-division relative-position q-item-link" @click="logout">
+        <div class="q-item-side q-item-side-left q-item-section">
+          <i aria-hidden="true" class="q-item-icon q-icon material-icons">power_settings_new</i>
+        </div>
+        <div class="q-item-main q-item-section">
+          <div class="q-item-label" style="overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical;">
+            Sair
+          </div>
+        </div>
+      </div>
     </q-list>
   </div>
 </template>

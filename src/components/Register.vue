@@ -63,7 +63,8 @@
     QItemSide,
     QItemMain,
     QSideLink,
-    Toast
+    Toast,
+    Loading
   } from 'quasar'
   import { required, email, numeric, minValue, minLength, sameAs } from 'vuelidate/lib/validators'
   import { mask } from 'vue-the-mask'
@@ -124,13 +125,16 @@
           Toast.create('Por favor preencha o formulário corretamente.')
         }
 
+        Loading.show()
         this.$store.dispatch('auth/signup', {
           email: this.email,
           cpf: this.cpf,
           password: this.password
         }).then(() => {
+          Loading.hide()
           this.$router.push('/app')
         }).catch((error) => {
+          Loading.hide()
           console.log(error)
           this.$router.push('/')
         })

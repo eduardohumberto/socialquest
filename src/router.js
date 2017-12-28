@@ -15,6 +15,11 @@ function load (component) {
   return () => import(`@/${component}.vue`)
 }
 
+function loadPages (component) {
+  // '@' is aliased to src/components
+  return () => import(`@/pages/${component}.vue`)
+}
+
 export default new VueRouter({
   /*
    * NOTE! VueRouter "history" mode DOESN'T works for Cordova builds,
@@ -35,7 +40,8 @@ export default new VueRouter({
       component: load('Index'),
       children: [
         { path: '', component: load('Home'), name: 'app' },
-        { path: 'home', component: load('Home') }
+        { path: 'home', component: load('Home') },
+        { path: 'create-quest', component: loadPages('CreateQuest'), name: 'CreateQuest' },
       ]
     },
     { path: '/', redirect: { name: 'login' } },

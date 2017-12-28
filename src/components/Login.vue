@@ -33,7 +33,8 @@
     QItemSide,
     QItemMain,
     QSideLink,
-    Toast
+    Toast,
+    Loading
   } from 'quasar'
 
   export default {
@@ -64,12 +65,15 @@
           Toast.create('Email e senha são obrigatórios')
         }
 
+        Loading.show()
         this.$store.dispatch('auth/login', {
           email: this.email,
           password: this.password
         }).then(() => {
+          Loading.hide()
           this.$router.push('/app')
         }).catch((error) => {
+          Loading.hide()
           Toast.create('Usuário ou senha inválidos')
           this.$router.push('/')
         })
