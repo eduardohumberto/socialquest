@@ -73,6 +73,7 @@ export default new VueRouter({
         { path: 'home', component: load('Home') },
         { path: 'create-quest', component: loadPages('CreateQuest'), name: 'CreateQuest' },
         { path: 'user-quests', component: loadPages('UserQuests'), name: 'UserQuest' },
+        { path: 'single-quest/:uid', component: loadPages('SingleQuest'), name: 'SingleQuest' },
       ]
     },
     { path: '/', redirect: { name: 'login' } },

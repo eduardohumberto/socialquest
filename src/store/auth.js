@@ -75,13 +75,13 @@ export default {
       if (!token) {
         return
       }
-      const expirationDate = localStorage.getItem('expirationDate')
+      const expirationDate = new Date(localStorage.getItem('expirationDate'))
       const now = new Date()
       if (now >= expirationDate) {
         return
       }
       const user = JSON.parse(localStorage.getItem('user'))
-      commit('storeUser',user)
+      commit('storeUser', user)
     },
     logout ({commit}) {
       commit('clearAuthData')

@@ -54,17 +54,19 @@
 <script>
   import { QField, QDatetime, QInput, QSelect, QChipsInput, QRating, QUploader, QBtn, Toast, Loading } from 'quasar'
   import { required, maxLength, minValue, minLength } from 'vuelidate/lib/validators'
+  import { uniqueId } from  '../../helpers/helpers'
 
   const modelAlternatives = ( arrayAlternativesDefault ) => {
-    let arrayAlternatives = []
+    let arrayAlternatives = {}
 
     for (let alternative of arrayAlternativesDefault) {
-      arrayAlternatives.push({
+      let property = uniqueId()
+      arrayAlternatives[property] = {
         name: alternative,
         votes: []
-      })
+      }
     }
-    return arrayAlternatives;
+    return arrayAlternatives
   }
 
   export default {
