@@ -1,9 +1,15 @@
 import firebase from 'firebase'
 import router from '../router'
-import { app } from '../config/firebaseConfig'
+import { usersRef } from '../config/references'
 
-let db = app.database()
-let usersRef = db.ref('users')
+const saveLocal = (token, user) => {
+  const now = new Date()
+  const expirationDate = new Date(now.getTime() + 3600 * 1000)
+  localStorage.setItem('token', token)
+  localStorage.setItem('user', JSON.stringify(user))
+  localStorage.setItem('expirationDate', expirationDate)
+  return expirationDate
+}
 
 export default {
   namespaced: true,
@@ -19,14 +25,20 @@ export default {
     }
   },
   actions: {
+    setLogoutTimer ({commit}, expirationTime) {
+      setTimeout(() => {
+        commit('clearAuthData')
+      }, expirationTime * 1000)
+    },
     signup ({commit, dispatch}, authData) {
       return new Promise((resolve, reject) => {
         firebase.auth()
           .createUserWithEmailAndPassword(authData.email, authData.password)
           .then(
             user => {
-              console.log('success', user)
-              dispatch('storeUser', { uid: user.uid, cpf: authData.cpf, email: authData.email})
+              let newUser = { uid: user.uid, cpf: authData.cpf, email: authData.email }
+              dispatch('storeUser', newUser)
+              saveLocal(user.refreshToken, newUser)
               resolve(authData)
             },
             error => {
@@ -41,11 +53,13 @@ export default {
           .signInWithEmailAndPassword(authData.email, authData.password)
           .then(
             user => {
+              let responseUser = user
               // this.$router.replace('dashboard');
               usersRef.orderByChild('email').equalTo(authData.email).on('value', function(snapshot) {
                 let user = snapshot.val()
                 for ( let index in user){
                   commit('storeUser', user[index])
+                  saveLocal(responseUser.refreshToken, user[index])
                   resolve(user[index])
                 }
               });
@@ -56,8 +70,24 @@ export default {
           )
       })
     },
+    tryAutoLogin ({commit}) {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        return
+      }
+      const expirationDate = localStorage.getItem('expirationDate')
+      const now = new Date()
+      if (now >= expirationDate) {
+        return
+      }
+      const user = JSON.parse(localStorage.getItem('user'))
+      commit('storeUser',user)
+    },
     logout ({commit}) {
       commit('clearAuthData')
+      localStorage.removeItem('expirationDate')
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
       firebase.auth().signOut()
       router.replace('/')
     },
@@ -70,7 +100,7 @@ export default {
     }
   },
   getters: {
-    user (state) {
+    getUser (state) {
       return state.user
     },
     isAuthenticated (state) {

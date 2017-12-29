@@ -57,14 +57,12 @@
 
   const modelAlternatives = ( arrayAlternativesDefault ) => {
     let arrayAlternatives = []
-    let objectDefault = {
-      name: '',
-      votes:[]
-    }
 
     for (let alternative of arrayAlternativesDefault) {
-      objectDefault.name = alternative
-      arrayAlternatives.push( objectDefault );
+      arrayAlternatives.push({
+        name: alternative,
+        votes: []
+      })
     }
     return arrayAlternatives;
   }
@@ -119,30 +117,31 @@
         }
 
         Loading.show()
-        if ( this.cover !== '' ) {
+        if (this.cover !== '') {
           this.$store.dispatch('upload/upload', this.cover)
             .then((url) => {
-              this.insert( url )
+              this.insert(url)
             })
             .catch((error) => {
               Loading.hide()
               console.log(error)
             })
-        }else{
+        } else {
           this.insert(this.cover)
         }
       },
-      insert(image){
-        let user = this.$store.getters['auth/user']
+      insert (image) {
+        let user = this.$store.getters['auth/getUser']
         this.$store.dispatch('quest/create', {
           name: this.name,
           description: this.description,
-          alternatives: modelAlternatives( this.alternatives ),
+          alternatives: modelAlternatives(this.alternatives),
           image: image,
+          createdAt: Date.now(),
           user: user.uid
         }).then(() => {
           Loading.hide()
-          this.$router.push('/app/list-my-quests')
+          this.$router.push('/app/user-quests')
         }).catch((error) => {
           Loading.hide()
           console.log(error)

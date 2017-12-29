@@ -24,7 +24,7 @@
       <q-route-tab slot="title" icon="whatshot" to="/app/hottest" replace  label="" />
       <q-route-tab slot="title" icon="search" to="/app/newly" replace  label="" />
       <q-route-tab slot="title" icon="add_box" to="/app/create-quest" replace  label="" />
-      <q-route-tab slot="title" icon="person_pin" to="/test-layout/drawer" replace label="" />
+      <q-route-tab slot="title" icon="person_pin" to="/app/user-quests" replace label="" />
       <q-route-tab slot="title" icon="room" to="/test-layout/drawer" replace label="" />
     </q-tabs>
   </q-layout>

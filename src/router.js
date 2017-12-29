@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import store from './store/store'
 
 // import Hello from '@/Hello.vue'
 
@@ -34,14 +35,44 @@ export default new VueRouter({
    */
 
   routes: [
-    { path: '/login', component: load('Login'), name: 'login' },
-    { path: '/register', component: load('Register'), name: 'register' },
+    {
+      path: '/login',
+      component: load('Login'),
+      name: 'login',
+      beforeEnter (to, from, next) {
+        if (!store.state['auth'].user) {
+          next()
+        } else {
+          next('/app')
+        }
+      }
+    },
+    {
+      path: '/register',
+      component: load('Register'),
+      name: 'register',
+      beforeEnter (to, from, next) {
+        if (!store.state['auth'].user) {
+          next()
+        } else {
+          next('/app')
+        }
+      }
+    },
     { path: '/app',
       component: load('Index'),
+      beforeEnter (to, from, next) {
+        if (store.state['auth'].user) {
+          next()
+        } else {
+          next('/login')
+        }
+      },
       children: [
         { path: '', component: load('Home'), name: 'app' },
         { path: 'home', component: load('Home') },
         { path: 'create-quest', component: loadPages('CreateQuest'), name: 'CreateQuest' },
+        { path: 'user-quests', component: loadPages('UserQuests'), name: 'UserQuest' },
       ]
     },
     { path: '/', redirect: { name: 'login' } },

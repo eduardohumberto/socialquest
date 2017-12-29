@@ -8,7 +8,7 @@
     <q-list no-border link inset-delimiter>
       <div class="row flex-center bg-white" style="width: 100%; height: 110px;">
         <div style="margin-left: 15px;">
-          Social Quest
+          {{ getEmail }}
         </div>
       </div>
       <!-- q-list-header>Essential Links</q-list-header -->
@@ -69,6 +69,11 @@
       QItemMain,
       QSideLink,
       QBtn
+    },
+    computed:{
+      getEmail(){
+        return this.$store.getters['auth/getUser'].email
+      }
     },
     methods:{
       logout(){
