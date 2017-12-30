@@ -7,7 +7,6 @@
           class="cursor-pointer"
           multiline
           v-for="quest in quests"
-          @click="singleQuest(quest['.key'])"
           :key="quest['.key']">
           <q-item-side v-if="quest.image"  :avatar="quest.image" />
           <q-item-side v-else  icon="help" />
@@ -16,8 +15,23 @@
             label-lines="2"
             :sublabel="quest.description"
             sublabel-lines="2"
+            @click="singleQuest(quest['.key'])"
           />
-          <q-item-side right :stamp="parseDate(quest.createdAt)" />
+          <q-item-side right icon="more_vert">
+            <q-popover ref="popover">
+              <q-list link>
+                <q-item @click="$refs.popover.close()">
+                  <q-item-main label="Reply" />
+                </q-item>
+                <q-item @click="$refs.popover.close()">
+                  <q-item-main label="Forward" />
+                </q-item>
+                <q-item @click="$refs.popover.close()">
+                  <q-item-main label="Delete" />
+                </q-item>
+              </q-list>
+            </q-popover>
+          </q-item-side>
         </q-item>
       </q-list>
     </div>
@@ -36,6 +50,7 @@
     QItemMain,
     QItemSide,
     QItemTile,
+    QPopover,
     date
   } from 'quasar'
   import { questsRef } from '../../config/references'
@@ -54,7 +69,8 @@
       QItem,
       QItemMain,
       QItemSide,
-      QItemTile
+      QItemTile,
+      QPopover,
     },
     firebase: {
       quests: questsRef.orderByChild('user').equalTo(store.state['auth'].user.uid).limitToLast(25)
