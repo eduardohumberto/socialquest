@@ -5,7 +5,8 @@ import * as mutations from './mutations';
 export default {
   namespaced: true,
   state: {
-    userQuests: []
+    userQuests: [],
+    singleQuest: ''
   },
   mutations,
   actions,

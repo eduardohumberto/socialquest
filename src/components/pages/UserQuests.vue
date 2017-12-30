@@ -2,7 +2,7 @@
 
   <div class="layout-padding row justify-center">
     <div style="width: 500px; max-width: 90vw;">
-      <q-list highlight inset-separator v-if="quests">
+      <q-list highlight inset-separator v-if="isReady">
         <q-item
           class="cursor-pointer"
           multiline
@@ -20,20 +20,18 @@
           <q-item-side right icon="more_vert">
             <q-popover ref="popover">
               <q-list link>
-                <q-item @click="$refs.popover.close()">
-                  <q-item-main label="Reply" />
+                <q-item @click="editQuest(quest['.key'])">
+                  <q-item-main label="Editar" />
                 </q-item>
                 <q-item @click="$refs.popover.close()">
-                  <q-item-main label="Forward" />
-                </q-item>
-                <q-item @click="$refs.popover.close()">
-                  <q-item-main label="Delete" />
+                  <q-item-main label="Remover" />
                 </q-item>
               </q-list>
             </q-popover>
           </q-item-side>
         </q-item>
       </q-list>
+      <q-spinner class="justify-center" style="height: 30px"  v-else/>
     </div>
   </div>
 </template>
@@ -51,7 +49,8 @@
     QItemSide,
     QItemTile,
     QPopover,
-    date
+    date,
+    QSpinner
   } from 'quasar'
   import { questsRef } from '../../config/references'
   import store from '../../store/store'
@@ -71,16 +70,33 @@
       QItemSide,
       QItemTile,
       QPopover,
+      QSpinner
     },
     firebase: {
       quests: questsRef.orderByChild('user').equalTo(store.state['auth'].user.uid).limitToLast(25)
+    },
+    data(){
+      return {
+        isReady: false
+      }
+    },
+    created(){
+      let self = this
+      this.$firebaseRefs.quests.on('value', function(snapshot) {
+        self.isReady = true
+      })
     },
     methods: {
       parseDate (timestamp) {
         return (timestamp) ? date.formatDate(timestamp, 'D/M/YY') : ''
       },
       singleQuest (uid) {
+        this.$store.dispatch('quest/setSingleQuest', uid)
         this.$router.push('/app/single-quest/'+uid)
+      },
+      editQuest (uid) {
+        this.$store.dispatch('quest/setSingleQuest', uid)
+        this.$router.push('/app/edit-quest/'+uid)
       }
     }
   }

@@ -1,8 +1,6 @@
 <template>
   <div class="layout-padding docs-input row justify-center">
      <div style="width: 500px; max-width: 90vw;">
-        <p class="caption">Editar Quest</p>
-
         <q-field
           :count="140"
           helper="Nome de sua Quest">
@@ -22,12 +20,44 @@
 
        <q-field
          helper="Insira suas alternativas (Max. 10)">
-         <q-chips-input v-model="alternatives" :error="$v.alternatives.$error" @blur="$v.alternatives.$touch()"/>
+         <div
+           style="margin-top: 5px;"
+           class="row"
+           v-for="(alternative, index) in alternatives"
+           :key="alternative.key">
+           <q-input
+             class="col-10"
+             type="text"
+             :id="alternative.key"
+             :error="$v.alternatives.$each[index].$error"
+             @input="$v.alternatives.$each[index].value.$touch()"
+             v-model="alternative.value" />
+           <span class="col justify-center">
+             <q-btn
+               round color="red"
+               icon="remove"
+               @click="removeAlternative(alternative.key)" small/>
+           </span>
+
+           <p style="font-size: 10px" v-if="!$v.alternatives.$each[index].value.required && $v.alternatives.$each[index].value.$dirty">
+             Preencha esta alternativa!
+           </p>
+         </div>
+
+         <q-btn icon="plus_one" color="primary" small
+            :disabled="$v.alternatives.$invalid && $v.alternatives.$dirty && alternatives.length > 1"
+            @click="onAddAlternative"
+            style="margin-top: 5px;"
+         >
+          alternativa
+         </q-btn>
+
+         <!-- q-chips-input v-model="alternatives" :error="$v.alternatives.$error" @blur="$v.alternatives.$touch()"/ -->
          <p style="font-size: 10px" v-if="!$v.alternatives.minLen">
            Você deve especificar ao menos {{ $v.alternatives.$params.minLen.min }} alternativas.
          </p>
          <p style="font-size: 10px" v-if="!$v.alternatives.required && $v.alternatives.$dirty">
-           Alternativas são obrigatórios
+           Alternativas são obrigatórias
          </p>
          <p style="font-size: 10px" v-if="!$v.alternatives.maxLen">
            O máximo de alternativas são 10
@@ -52,17 +82,19 @@
   </div>
 </template>
 <script>
-  import { QField, QDatetime, QInput, QSelect, QChipsInput, QRating, QUploader, QBtn, Toast, Loading } from 'quasar'
+  import { QField, QDatetime, QInput, QSelect, QChipsInput, QRating, QUploader, QBtn, Toast, Loading, Dialog } from 'quasar'
   import { required, maxLength, minValue, minLength } from 'vuelidate/lib/validators'
-  import { uniqueId } from  '../../helpers/helpers'
+  import { uniqueId } from '../../helpers/helpers'
+  import { questsRef } from '../../config/references'
+  import store from '../../store/store'
 
   const modelAlternatives = ( arrayAlternativesDefault ) => {
     let arrayAlternatives = {}
 
     for (let alternative of arrayAlternativesDefault) {
-      let property = uniqueId()
+      let property = alternative.key
       arrayAlternatives[property] = {
-        name: alternative,
+        name: alternative.value,
         votes: []
       }
     }
@@ -78,7 +110,8 @@
       QChipsInput,
       QRating,
       QUploader,
-      QBtn
+      QBtn,
+      Dialog
     },
     data () {
       return {
@@ -87,10 +120,28 @@
         alternatives: [],
         img: '',
         cover: '',
-        id: this.$route.params.uid,
-        quest: null,
-        user: this.$store.getters['auth/getUser']
+        id: (this.$route.params) ? this.$route.params.uid : null,
+        user: this.$store.getters['auth/getUser'],
+        previousAlternatives:[]
       }
+    },
+    created () {
+      let self = this
+      this.$firebaseRefs.quests.on('value', function (snapshot) {
+        let quest = snapshot.val()
+        self.name = quest.name
+        self.description = quest.description
+
+        for (let index in quest.alternatives) {
+          let obj = {key: index, value: quest.alternatives[index].name}
+          self.alternatives.push(obj)
+          self.previousAlternatives.push(index)
+        }
+
+      })
+    },
+    firebase: {
+      quests: questsRef.child(store.getters['quest/getSingleQuest'])
     },
     validations: {
       name:{
@@ -103,12 +154,45 @@
         maxLen: maxLength(10),
         $each: {
           value: {
+            required,
             minLen: minLength(1)
           }
         }
       }
     },
     methods: {
+      onAddAlternative(){
+        const newAlternative = {
+          key: uniqueId(),
+          value: ''
+        }
+        this.alternatives.push(newAlternative)
+        this.$v.alternatives.$touch()
+      },
+      removeAlternative (id) {
+        if (this.previousAlternatives.indexOf(id)) {
+          Dialog.create({
+            title: 'Atenção!',
+            message: 'Remover está alternativa fara que os votos sejam perdidos, esta operação não é reversível! ',
+            buttons: [
+              {
+                label: 'Confirmar ação',
+                handler () {
+                  this.alternatives = this.alternatives.filter(alt => alt.key !== id)
+                }
+              },
+              {
+                label: 'Cancelar',
+                handler () {
+                  return false;
+                }
+              }
+            ]
+          })
+        }else{
+          this.alternatives = this.alternatives.filter(alt => alt.key !== id)
+        }
+      },
       addFiles(file) {
         this.cover = file[0]
       },
@@ -117,6 +201,7 @@
       },
       submit () {
         if (this.$v.$invalid) {
+          this.$v.$touch()
           Toast.create('Por favor preencha o formulário corretamente.')
           return false
         }

@@ -5,8 +5,7 @@
 
       <p class="caption" v-if="quest.description">
         <span>
-          On a real mobile device the Progress bars
-          are much thinner by default.
+          {{ quest.description }}
         </span>
       </p>
        <div
@@ -37,13 +36,13 @@
          <hr>
        </div>
     </div>
-    <q-spinner  v-else/>
+    <q-spinner style="height: 30px;" v-else/>
   </div>
 </template>
 <script>
   import { QProgress, QBtn, QSpinner,QChip } from 'quasar'
-  import { questsRef, db } from '../../config/references'
-
+  import { questsRef } from '../../config/references'
+  import store from '../../store/store'
 
   export default {
     components: {
@@ -61,12 +60,12 @@
     },
     created () {
       let self = this
-      this.$firebaseRefs.quests.child(this.id).on('value', function(snapshot) {
+      this.$firebaseRefs.quests.on('value', function(snapshot) {
         self.quest = snapshot.val()
       })
     },
     firebase: {
-      quests: questsRef
+      quests: questsRef.child(store.getters['quest/getSingleQuest'])
     },
     methods: {
       vote(alternative,index){

@@ -1,68 +1,100 @@
 <template>
   <div class="layout-padding docs-input row justify-center">
-     <div style="width: 500px; max-width: 90vw;">
-        <p class="caption">Criar Quest</p>
+    <div style="width: 500px; max-width: 90vw;">
+      <q-field
+        :count="140"
+        helper="Nome de sua Quest">
+        <q-input
+          v-model="name"
+          @blur="$v.name.$touch()"
+          :error="$v.name.$error"
+        />
+        <p style="font-size: 10px" v-if="!$v.name.required && $v.name.$dirty">O nome é obrigatório</p>
+        <p style="font-size: 10px" v-if="!$v.name.maxLen">O nome deverá ter apenas 140 caracteres</p>
+      </q-field>
 
-        <q-field
-          :count="140"
-          helper="Nome de sua Quest">
+      <q-field
+        helper="Fale sobre sua Quest">
+        <q-input v-model="description" type="textarea" />
+      </q-field>
+
+      <q-field
+        helper="Insira suas alternativas (Max. 10)">
+        <div
+          style="margin-top: 5px;"
+          class="row"
+          v-for="(alternative, index) in alternatives"
+          :key="alternative.key">
           <q-input
-            v-model="name"
-            @blur="$v.name.$touch()"
-            :error="$v.name.$error"
-            />
-          <p style="font-size: 10px" v-if="!$v.name.required && $v.name.$dirty">O nome é obrigatório</p>
-          <p style="font-size: 10px" v-if="!$v.name.maxLen">O nome deverá ter apenas 140 caracteres</p>
-        </q-field>
+            class="col-10"
+            type="text"
+            :id="alternative.key"
+            :error="$v.alternatives.$each[index].$error"
+            @input="$v.alternatives.$each[index].value.$touch()"
+            v-model="alternative.value" />
+          <span class="col justify-center">
+             <q-btn
+               round color="red"
+               icon="remove"
+               @click="removeAlternative(alternative.key)" small/>
+           </span>
 
-        <q-field
-          helper="Fale sobre sua Quest">
-           <q-input v-model="description" type="textarea" />
-        </q-field>
+          <p style="font-size: 10px" v-if="!$v.alternatives.$each[index].value.required && $v.alternatives.$each[index].value.$dirty">
+            Preencha esta alternativa!
+          </p>
+        </div>
 
-       <q-field
-         helper="Insira suas alternativas (Max. 10)">
-         <q-chips-input v-model="alternatives" :error="$v.alternatives.$error" @blur="$v.alternatives.$touch()"/>
-         <p style="font-size: 10px" v-if="!$v.alternatives.minLen">
-           Você deve especificar ao menos {{ $v.alternatives.$params.minLen.min }} alternativas.
-         </p>
-         <p style="font-size: 10px" v-if="!$v.alternatives.required && $v.alternatives.$dirty">
-           Alternativas são obrigatórios
-         </p>
-         <p style="font-size: 10px" v-if="!$v.alternatives.maxLen">
-           O máximo de alternativas são 10
-         </p>
-       </q-field>
+        <q-btn icon="plus_one" color="primary" small
+               :disabled="$v.alternatives.$invalid && $v.alternatives.$dirty && alternatives.length > 1"
+               @click="onAddAlternative"
+               style="margin-top: 5px;"
+        >
+          alternativa
+        </q-btn>
 
-       <q-field
-         helper="Inserir imagem para sua Quest (Opcional)">
-         <q-uploader :url="img"
-                     :hide-upload-button="true"
-                     :hide-upload-progress="true"
-                     @add="addFiles"
-                     @remove:cancel="remove"
-                     :extensions="'.gif,.jpg,.jpeg,.png'"/>
-       </q-field>
-       <q-btn
-         @click="submit"
-         icon-right="send"
-         color="primary"
-         class="round full-width margin-min">Salvar</q-btn>
-     </div>
+        <!-- q-chips-input v-model="alternatives" :error="$v.alternatives.$error" @blur="$v.alternatives.$touch()"/ -->
+        <p style="font-size: 10px" v-if="!$v.alternatives.minLen">
+          Você deve especificar ao menos {{ $v.alternatives.$params.minLen.min }} alternativas.
+        </p>
+        <p style="font-size: 10px" v-if="!$v.alternatives.required && $v.alternatives.$dirty">
+          Alternativas são obrigatórias
+        </p>
+        <p style="font-size: 10px" v-if="!$v.alternatives.maxLen">
+          O máximo de alternativas são 10
+        </p>
+      </q-field>
+
+      <q-field
+        helper="Inserir imagem para sua Quest (Opcional)">
+        <q-uploader :url="img"
+                    :hide-upload-button="true"
+                    :hide-upload-progress="true"
+                    @add="addFiles"
+                    @remove:cancel="remove"
+                    :extensions="'.gif,.jpg,.jpeg,.png'"/>
+      </q-field>
+      <q-btn
+        @click="submit"
+        icon-right="send"
+        color="primary"
+        class="round full-width margin-min">Salvar</q-btn>
+    </div>
   </div>
 </template>
 <script>
   import { QField, QDatetime, QInput, QSelect, QChipsInput, QRating, QUploader, QBtn, Toast, Loading } from 'quasar'
   import { required, maxLength, minValue, minLength } from 'vuelidate/lib/validators'
-  import { uniqueId } from  '../../helpers/helpers'
+  import { uniqueId } from '../../helpers/helpers'
+  import { questsRef } from '../../config/references'
+  import store from '../../store/store'
 
   const modelAlternatives = ( arrayAlternativesDefault ) => {
     let arrayAlternatives = {}
 
     for (let alternative of arrayAlternativesDefault) {
-      let property = uniqueId()
+      let property = alternative.key
       arrayAlternatives[property] = {
-        name: alternative,
+        name: alternative.value,
         votes: []
       }
     }
@@ -86,7 +118,8 @@
         description: '',
         alternatives: [],
         img: '',
-        cover: ''
+        cover: '',
+        user: this.$store.getters['auth/getUser']
       }
     },
     validations: {
@@ -100,12 +133,24 @@
         maxLen: maxLength(10),
         $each: {
           value: {
+            required,
             minLen: minLength(1)
           }
         }
       }
     },
     methods: {
+      onAddAlternative(){
+        const newAlternative = {
+          key: uniqueId(),
+          value: ''
+        }
+        this.alternatives.push(newAlternative)
+        this.$v.alternatives.$touch()
+      },
+      removeAlternative (id) {
+        this.alternatives = this.alternatives.filter(alt => alt.key !== id)
+      },
       addFiles(file) {
         this.cover = file[0]
       },
@@ -114,6 +159,7 @@
       },
       submit () {
         if (this.$v.$invalid) {
+          this.$v.$touch()
           Toast.create('Por favor preencha o formulário corretamente.')
           return false
         }

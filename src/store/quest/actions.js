@@ -15,3 +15,7 @@ export const create = ({commit, dispatch}, quest) => {
     }
   })
 }
+
+export const setSingleQuest = ({commit}, quest) => {
+  commit('setSingleQuest', quest )
+}
