@@ -222,13 +222,13 @@
       },
       insert (image) {
         let user = this.$store.getters['auth/getUser']
-        this.$store.dispatch('quest/create', {
+        this.$store.dispatch('quest/update', {
+          uid: this.id,
           name: this.name,
           description: this.description,
           alternatives: modelAlternatives(this.alternatives),
           image: image,
-          createdAt: Date.now(),
-          user: user.uid
+          updateAt: Date.now()
         }).then(() => {
           Loading.hide()
           this.$router.push('/app/user-quests')

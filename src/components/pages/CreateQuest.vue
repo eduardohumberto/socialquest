@@ -185,6 +185,7 @@
           description: this.description,
           alternatives: modelAlternatives(this.alternatives),
           image: image,
+          status: 'published',
           createdAt: Date.now(),
           user: user.uid
         }).then(() => {

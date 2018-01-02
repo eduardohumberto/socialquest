@@ -6,8 +6,8 @@
         <q-item
           class="cursor-pointer"
           multiline
-          v-for="quest in quests"
-          :key="quest['.key']">
+          v-for="quest,index in results"
+          :key="index">
           <q-item-side v-if="quest.image"  :avatar="quest.image" />
           <q-item-side v-else  icon="help" />
           <q-item-main
@@ -15,15 +15,15 @@
             label-lines="2"
             :sublabel="quest.description"
             sublabel-lines="2"
-            @click="singleQuest(quest['.key'])"
+            @click="singleQuest(index)"
           />
           <q-item-side right icon="more_vert">
             <q-popover ref="popover">
               <q-list link>
-                <q-item @click="editQuest(quest['.key'])">
+                <q-item @click="editQuest(index)">
                   <q-item-main label="Editar" />
                 </q-item>
-                <q-item @click="$refs.popover.close()">
+                <q-item @click="moveToTrash(index)">
                   <q-item-main label="Remover" />
                 </q-item>
               </q-list>
@@ -50,7 +50,9 @@
     QItemTile,
     QPopover,
     date,
-    QSpinner
+    QSpinner,
+    Dialog,
+    Toast
   } from 'quasar'
   import { questsRef } from '../../config/references'
   import store from '../../store/store'
@@ -70,20 +72,23 @@
       QItemSide,
       QItemTile,
       QPopover,
-      QSpinner
+      QSpinner,
+      Dialog
     },
     firebase: {
       quests: questsRef.orderByChild('user').equalTo(store.state['auth'].user.uid).limitToLast(25)
     },
     data(){
       return {
-        isReady: false
+        isReady: false,
+        results: []
       }
     },
     created(){
       let self = this
-      this.$firebaseRefs.quests.on('value', function(snapshot) {
+      this.$firebaseRefs.quests.orderByChild('status').equalTo('published').on('value', function(snapshot) {
         self.isReady = true
+        self.results = snapshot.val()
       })
     },
     methods: {
@@ -97,6 +102,36 @@
       editQuest (uid) {
         this.$store.dispatch('quest/setSingleQuest', uid)
         this.$router.push('/app/edit-quest/'+uid)
+      },
+      moveToTrash(uid){
+        let self = this
+        for (let index in this.$refs.popover){
+          this.$refs.popover[index].close()
+        }
+        let uidUser = this.$store.getters['auth/getUser'].uid
+        Dialog.create({
+          title: 'Atenção!',
+          message: 'Enviar para a lixeira?',
+          buttons: [
+            {
+              label: 'Confirmar ação',
+              handler () {
+                self.$store.dispatch('quest/alterQuestStatus', { uid: uid, user: uidUser, status: 'trash'})
+                  .then( (success) => {
+                    Toast.create.positive({
+                      html: 'Enviado para lixeira',
+                      icon: 'success'})
+                  })
+              }
+            },
+            {
+              label: 'Cancelar',
+              handler () {
+                return false;
+              }
+            }
+          ]
+        })
       }
     }
   }

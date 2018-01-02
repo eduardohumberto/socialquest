@@ -76,16 +76,16 @@
         if (this.quest.allvotes && this.quest.allvotes[indexobj]){
           let remove = this.quest.allvotes[indexobj]
           if (remove === index) {
-            this.$firebaseRefs.quests.child(this.id + '/alternatives/' + remove + '/votes/' + indexobj).remove()
-            this.$firebaseRefs.quests.child(this.id + '/allvotes/' + indexobj).remove()
+            this.$firebaseRefs.quests.child('/alternatives/' + remove + '/votes/' + indexobj).remove()
+            this.$firebaseRefs.quests.child('/allvotes/' + indexobj).remove()
           } else {
-            this.$firebaseRefs.quests.child(this.id + '/alternatives/' + remove + '/votes/' + indexobj).remove()
-            this.$firebaseRefs.quests.child(this.id + '/alternatives/' + index + '/votes' ).set(obj)
-            this.$firebaseRefs.quests.child(this.id + '/allvotes/' ).set(obj)
+            this.$firebaseRefs.quests.child('/alternatives/' + remove + '/votes/' + indexobj).remove()
+            this.$firebaseRefs.quests.child('/alternatives/' + index + '/votes' ).set(obj)
+            this.$firebaseRefs.quests.child('/allvotes/' ).set(obj)
           }
         } else {
-          this.$firebaseRefs.quests.child(this.id + '/alternatives/' + index + '/votes' ).set(obj)
-          this.$firebaseRefs.quests.child(this.id + '/allvotes/' ).set(obj)
+          this.$firebaseRefs.quests.child('/alternatives/' + index + '/votes' ).set(obj)
+          this.$firebaseRefs.quests.child('/allvotes/' ).set(obj)
         }
       },
       percentagem (votesArray) {
