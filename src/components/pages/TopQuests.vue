@@ -1,49 +1,17 @@
 <template>
-  <q-list v-if="isReady">
-    <q-item
-      v-for="quest,index in results"
-      :key="index"
-    >
-      <q-item-side v-if="isSelectedByUser(quest)"  icon="done" bg-color="green"/>
-      <q-item-side v-else  icon="help" />
-      <q-item-main
-        @click="singleQuest(index)"
-        >
-        <q-item-tile label lines="1">{{ quest.name }}</q-item-tile>
-        <q-item-tile sublabel lines="1"> --hashtags--</q-item-tile>
-      </q-item-main>
-      <q-item-side right>
-        <span>{{ quest.countVotes }} <q-item-tile icon="whatshot" color="red" /></span>
-
-      </q-item-side>
-    </q-item>
-  </q-list>
+  <div class="layout-padding docs-input row justify-center">
+    <div style="width: 500px; max-width: 90vw;">
+      <list-quest :results="results" :isReady="isReady"></list-quest>
+    </div>
+  </div>
 </template>
 <script>
-  import {
-    QList,
-    QListHeader,
-    QItem,
-    QItemSeparator,
-    QItemSide,
-    QItemMain,
-    QItemTile,
-    QChip,
-    QPopover
-  } from 'quasar'
   import { questsRef } from '../../config/references'
+  import ListQuest from '../common/ListQuest.vue'
 
   export default {
     components: {
-      QList,
-      QListHeader,
-      QItem,
-      QItemSeparator,
-      QItemSide,
-      QItemMain,
-      QItemTile,
-      QChip,
-      QPopover
+      ListQuest
     },
     data () {
       return {
@@ -68,21 +36,6 @@
     },
     firebase: {
       quests: questsRef.orderByChild('countVotes').limitToLast(25)
-    },
-    methods:{
-      singleQuest (uid) {
-        this.$store.dispatch('quest/setSingleQuest', uid)
-        this.$router.push('/app/single-quest/' + uid)
-      },
-      isSelectedByUser(quest){
-        let indexobj = this.user.uid // get the user uid
-
-        if (quest.allvotes && quest.allvotes[indexobj]){
-          return true
-        }
-
-        return false
-      }
     }
   }
 </script>

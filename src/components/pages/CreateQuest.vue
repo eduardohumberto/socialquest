@@ -64,15 +64,23 @@
         </p>
       </q-field>
 
-      <p class="caption">#hashtags</p>
-      <q-list>
-        <q-item multiline>
-          <q-item-side icon="edit" />
-          <q-item-main>
-            <q-chips-input v-model="hashtags" class="no-margin" placeholder="Escreva algumas"/>
-          </q-item-main>
-        </q-item>
-      </q-list>
+      <q-field
+        helper="Escreva até 3 tags para sua quest!">
+        <q-list>
+          <q-item multiline>
+            <q-item-side icon="label" />
+            <q-item-main>
+              <q-chips-input
+                :error="$v.hashtags.$error"
+                @input="$v.hashtags.$touch()"
+                v-model="hashtags"  class="no-margin" placeholder="Ex: Goiania, Eleicoes, barzinhos (Tecle enter ou clique ao lado)"/>
+            </q-item-main>
+          </q-item>
+        </q-list>
+        <p style="font-size: 13px;" v-if="!$v.hashtags.maxLen">
+          O máximo de Tags são 3!
+        </p>
+      </q-field>
       <!--q-field
         helper="Inserir imagem para sua Quest (Opcional)">
         <q-uploader :url="img"
@@ -131,7 +139,7 @@
         name: '',
         description: '',
         alternatives: [],
-        hashtags:[],
+        hashtags: [],
         img: '',
         cover: '',
         user: this.$store.getters['auth/getUser']
@@ -152,6 +160,9 @@
             minLen: minLength(1)
           }
         }
+      },
+      hashtags: {
+        maxLen: maxLength(3)
       }
     },
     methods: {
@@ -201,6 +212,9 @@
           alternatives: modelAlternatives(this.alternatives),
           image: image,
           status: 'published',
+          hashtag_0: (this.hashtags[0]) ? this.hashtags[0] : '',
+          hashtag_1: (this.hashtags[1]) ? this.hashtags[1] : '',
+          hashtag_2: (this.hashtags[2]) ? this.hashtags[2] : '',
           createdAt: Date.now(),
           user: user.uid
         }).then(() => {
