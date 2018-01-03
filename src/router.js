@@ -71,13 +71,11 @@ export default new VueRouter({
       children: [
         { path: '', component: load('Home'), name: 'app' },
         { path: 'home', component: load('Home') },
-        { path: 'create-quest',
-          component: loadPages('CreateQuest'),
-          name: 'CreateQuest'
-        },
+        { path: 'create-quest', component: loadPages('CreateQuest'), name: 'CreateQuest'},
         { path: 'user-quests', component: loadPages('UserQuests'), name: 'UserQuest' },
         { path: 'single-quest/:uid', component: loadPages('SingleQuest'), name: 'SingleQuest' },
         { path: 'edit-quest/:uid', component: loadPages('EditQuest'), name: 'EditQuest' },
+        { path: 'top-quests', component: loadPages('TopQuests'), name: 'TopQuests' },
       ]
     },
     { path: '/', redirect: { name: 'login' } },

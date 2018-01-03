@@ -64,7 +64,16 @@
         </p>
       </q-field>
 
-      <q-field
+      <p class="caption">#hashtags</p>
+      <q-list>
+        <q-item multiline>
+          <q-item-side icon="edit" />
+          <q-item-main>
+            <q-chips-input v-model="hashtags" class="no-margin" placeholder="Escreva algumas"/>
+          </q-item-main>
+        </q-item>
+      </q-list>
+      <!--q-field
         helper="Inserir imagem para sua Quest (Opcional)">
         <q-uploader :url="img"
                     :hide-upload-button="true"
@@ -72,7 +81,7 @@
                     @add="addFiles"
                     @remove:cancel="remove"
                     :extensions="'.gif,.jpg,.jpeg,.png'"/>
-      </q-field>
+      </q-field-->
       <q-btn
         @click="submit"
         icon-right="send"
@@ -82,7 +91,8 @@
   </div>
 </template>
 <script>
-  import { QField, QDatetime, QInput, QSelect, QChipsInput, QRating, QUploader, QBtn, Toast, Loading } from 'quasar'
+  import { QField, QDatetime, QInput, QSelect, QChipsInput, QRating, QUploader,
+    QBtn, QList, QItem, QItemMain, Toast, Loading, QIcon, QItemSide } from 'quasar'
   import { required, maxLength, minValue, minLength } from 'vuelidate/lib/validators'
   import { uniqueId } from '../../helpers/helpers'
   import { questsRef } from '../../config/references'
@@ -110,13 +120,18 @@
       QChipsInput,
       QRating,
       QUploader,
-      QBtn
+      QBtn,
+      QList,
+      QItem,
+      QItemMain,
+      QItemSide
     },
     data () {
       return {
         name: '',
         description: '',
         alternatives: [],
+        hashtags:[],
         img: '',
         cover: '',
         user: this.$store.getters['auth/getUser']

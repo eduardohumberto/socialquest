@@ -76,7 +76,7 @@
       Dialog
     },
     firebase: {
-      quests: questsRef.orderByChild('user').equalTo(store.state['auth'].user.uid).limitToLast(25)
+      quests: questsRef
     },
     data(){
       return {
@@ -84,11 +84,18 @@
         results: []
       }
     },
-    created(){
+    created (){
       let self = this
-      this.$firebaseRefs.quests.orderByChild('status').equalTo('published').on('value', function(snapshot) {
+      this.$firebaseRefs.quests.orderByChild('user').equalTo(store.state['auth'].user.uid).on('value', function(snapshot) {
         self.isReady = true
-        self.results = snapshot.val()
+        let onlyPublished = {}
+        let allUserQuests = snapshot.val()
+        for (let index in allUserQuests) {
+          if (allUserQuests[index].status === 'published') {
+            onlyPublished[index] = allUserQuests[index]
+          }
+        }
+        self.results = onlyPublished
       })
     },
     methods: {

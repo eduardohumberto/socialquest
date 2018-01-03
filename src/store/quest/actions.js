@@ -56,6 +56,29 @@ export const alterQuestStatus = ({commit, rootGetters},payload) => {
   });
 }
 
+export const saveVote = ({rootGetters}, payload) => {
+  let singleRef = questsRef.child(rootGetters['quest/getSingleQuest'])
+  let obj = {} // new object
+  let indexobj = rootGetters['auth/getUser'].uid // get the user uid
+  obj[indexobj] = payload.index // add the user uid as a property and the alternative as value
+
+  if (payload.quest.allvotes && payload.quest.allvotes[indexobj]){
+    let remove = payload.quest.allvotes[indexobj]
+    if (remove === payload.index) {
+      singleRef.child('/alternatives/' + remove + '/votes/' + indexobj).remove()
+      singleRef.child('/allvotes/' + indexobj).remove()
+      singleRef.child('/countVotes/').set(--payload.quest.countVotes)
+    } else {
+      singleRef.child('/alternatives/' + remove + '/votes/' + indexobj).remove()
+      singleRef.child('/alternatives/' + payload.index + '/votes/' + indexobj).set(payload.index)
+      singleRef.child('/allvotes/' + indexobj).set(payload.index)
+    }
+  } else {
+    singleRef.child('/alternatives/' +  payload.index + '/votes/' + indexobj).set(payload.index)
+    singleRef.child('/allvotes/' + indexobj).set(payload.index)
+    singleRef.child('/countVotes/').set((payload.quest.countVotes) ? ++payload.quest.countVotes : 1)
+  }
+}
 
 export const setSingleQuest = ({commit}, quest) => {
   commit('setSingleQuest', quest)
