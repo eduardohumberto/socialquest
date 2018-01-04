@@ -40,7 +40,7 @@
   </div>
 </template>
 <script>
-  import { QProgress, QBtn, QSpinner,QChip } from 'quasar'
+  import { QProgress, QBtn, QSpinner, QChip, Events } from 'quasar'
   import { questsRef } from '../../config/references'
   import store from '../../store/store'
 
@@ -60,6 +60,7 @@
     },
     created () {
       let self = this
+      self.changeTitle()
       this.$firebaseRefs.quests.on('value', function(snapshot) {
         self.quest = snapshot.val()
       })
@@ -68,6 +69,13 @@
       quests: questsRef.child(store.getters['quest/getSingleQuest'])
     },
     methods: {
+      changeTitle () {
+        Events.$emit('changeTitle', {
+          title: 'Votar',
+          subtitle: 'Escolha ou altere uma das alternativas',
+          obj: true
+        })
+      },
       vote(alternative,index){
         this.$store.dispatch('quest/saveVote', { index, quest: this.quest })
       },

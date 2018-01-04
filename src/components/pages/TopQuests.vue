@@ -6,6 +6,7 @@
   </div>
 </template>
 <script>
+  import { Events } from 'quasar'
   import { questsRef } from '../../config/references'
   import ListQuest from '../common/ListQuest.vue'
 
@@ -22,6 +23,7 @@
     },
     created () {
       let self = this
+      this.changeTitle()
       this.$firebaseRefs.quests.orderByChild('countVotes').limitToLast(25).on('value', function(snapshot) {
         self.isReady = true
         let onlyPublished = {}
@@ -36,6 +38,15 @@
     },
     firebase: {
       quests: questsRef.orderByChild('countVotes').limitToLast(25)
+    },
+    methods: {
+      changeTitle () {
+        Events.$emit('changeTitle', {
+          title: 'Top Quest',
+          subtitle: 'As Quests mais votadas pelos usuários',
+          obj: true
+        })
+      }
     }
   }
 </script>

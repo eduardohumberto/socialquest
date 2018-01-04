@@ -100,7 +100,7 @@
 </template>
 <script>
   import { QField, QDatetime, QInput, QSelect, QChipsInput, QRating, QUploader,
-    QBtn, QList, QItem, QItemMain, Toast, Loading, QIcon, QItemSide } from 'quasar'
+    QBtn, QList, QItem, QItemMain, Toast, Loading, QIcon, QItemSide,Events } from 'quasar'
   import { required, maxLength, minValue, minLength } from 'vuelidate/lib/validators'
   import { uniqueId } from '../../helpers/helpers'
   import { questsRef } from '../../config/references'
@@ -165,7 +165,17 @@
         maxLen: maxLength(3)
       }
     },
+    created () {
+      this.changeTitle()
+    },
     methods: {
+      changeTitle () {
+        Events.$emit('changeTitle', {
+          title: 'Crie uma quest',
+          subtitle: 'Adicione um quest pública ou apenas para alguns usuários',
+          obj: true
+        })
+      },
       onAddAlternative(){
         const newAlternative = {
           key: uniqueId(),

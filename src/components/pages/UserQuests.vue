@@ -1,38 +1,50 @@
 <template>
+  <div>
+    <q-tabs>
+      <!-- Tabs - notice slot="title" -->
+      <q-tab default count="5" slot="title" name="tab-1" icon="person" />
+      <q-tab slot="title" name="tab-2" icon="people" />
+      <q-tab slot="title" name="tab-5" icon="delete" />
 
-  <div class="layout-padding row justify-center">
-    <div style="width: 500px; max-width: 90vw;">
-      <q-list highlight inset-separator v-if="isReady">
-        <q-item
-          class="cursor-pointer"
-          multiline
-          v-for="quest,index in results"
-          :key="index">
-          <q-item-side v-if="quest.image"  :avatar="quest.image" />
-          <q-item-side v-else  icon="help" />
-          <q-item-main
-            :label="quest.name"
-            label-lines="2"
-            :sublabel="quest.description"
-            sublabel-lines="2"
-            @click="singleQuest(index)"
-          />
-          <q-item-side right icon="more_vert">
-            <q-popover ref="popover">
-              <q-list link>
-                <q-item @click="editQuest(index)">
-                  <q-item-main label="Editar" />
-                </q-item>
-                <q-item @click="moveToTrash(index)">
-                  <q-item-main label="Remover" />
-                </q-item>
-              </q-list>
-            </q-popover>
-          </q-item-side>
-        </q-item>
-      </q-list>
-      <q-spinner class="justify-center" style="height: 30px"  v-else/>
-    </div>
+      <q-tab-pane name="tab-1">
+        <div class="layout-padding row justify-center">
+          <div style="width: 500px; max-width: 90vw;">
+            <q-list highlight inset-separator v-if="isReady">
+              <q-item
+                class="cursor-pointer"
+                multiline
+                v-for="quest,index in results"
+                :key="index">
+                <q-item-side v-if="quest.image"  :avatar="quest.image" />
+                <q-item-side v-else  icon="help" />
+                <q-item-main
+                  :label="quest.name"
+                  label-lines="2"
+                  :sublabel="quest.description"
+                  sublabel-lines="2"
+                  @click="singleQuest(index)"
+                />
+                <q-item-side right icon="more_vert">
+                  <q-popover ref="popover">
+                    <q-list link>
+                      <q-item @click="editQuest(index)">
+                        <q-item-main label="Editar" />
+                      </q-item>
+                      <q-item @click="moveToTrash(index)">
+                        <q-item-main label="Remover" />
+                      </q-item>
+                    </q-list>
+                  </q-popover>
+                </q-item-side>
+              </q-item>
+            </q-list>
+            <q-spinner class="justify-center" style="height: 30px"  v-else/>
+          </div>
+        </div>
+      </q-tab-pane>
+
+    </q-tabs>
+
   </div>
 </template>
 <script>
@@ -52,7 +64,11 @@
     date,
     QSpinner,
     Dialog,
-    Toast
+    Toast,
+    QTabs,
+    QTab,
+    QTabPane,
+    Events
   } from 'quasar'
   import { questsRef } from '../../config/references'
   import store from '../../store/store'
@@ -73,7 +89,10 @@
       QItemTile,
       QPopover,
       QSpinner,
-      Dialog
+      Dialog,
+      QTabs,
+      QTab,
+      QTabPane
     },
     firebase: {
       quests: questsRef
@@ -86,6 +105,7 @@
     },
     created (){
       let self = this
+      self.changeTitle()
       this.$firebaseRefs.quests.orderByChild('user').equalTo(store.state['auth'].user.uid).on('value', function(snapshot) {
         self.isReady = true
         let onlyPublished = {}
@@ -99,6 +119,13 @@
       })
     },
     methods: {
+      changeTitle () {
+        Events.$emit('changeTitle', {
+          title: 'Suas Quests',
+          subtitle: 'As quests criadas por você',
+          obj: true
+        })
+      },
       parseDate (timestamp) {
         return (timestamp) ? date.formatDate(timestamp, 'D/M/YY') : ''
       },

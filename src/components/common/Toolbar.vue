@@ -7,8 +7,8 @@
     <q-icon name="menu" />
   </q-btn>
   <q-toolbar-title>
-    Social Quest
-    <div slot="subtitle">Pergunte e responda questões de todos sobre tudo</div>
+    {{ title }}
+    <div slot="subtitle">{{ subtitle }}</div>
   </q-toolbar-title>
   <!-- q-btn flat @click="logout()">Logout</q-btn-->
 </q-toolbar>
@@ -31,9 +31,22 @@
       QIcon,
       Events
     },
+    data (){
+      return {
+        title: '',
+        subtitle: ''
+      }
+    },
+    created () {
+      this.$q.events.$on('changeTitle', this.changeTitle)
+    },
     methods: {
       openDrawer () {
         Events.$emit('openDrawer')
+      },
+      changeTitle (event){
+        this.title = event.title
+        this.subtitle = event.subtitle
       },
       logout () {
         this.$router.push('/')

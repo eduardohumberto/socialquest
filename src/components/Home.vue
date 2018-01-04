@@ -5,7 +5,21 @@
 </template>
 
 <script>
+  import { Events } from 'quasar'
+
   export default {
+    created (){
+      this.changeTitle()
+    },
+    methods: {
+      changeTitle () {
+        Events.$emit('changeTitle', {
+          title: 'Social Quest',
+          subtitle: 'Responda questões de tudo de todos',
+          obj: true
+        })
+      }
+    }
   }
 </script>
 

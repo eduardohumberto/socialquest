@@ -82,7 +82,7 @@
   </div>
 </template>
 <script>
-  import { QField, QDatetime, QInput, QSelect, QChipsInput, QRating, QUploader, QBtn, Toast, Loading, Dialog } from 'quasar'
+  import { QField, QDatetime, QInput, QSelect, QChipsInput, QRating, QUploader, QBtn, Toast, Loading, Dialog, Events } from 'quasar'
   import { required, maxLength, minValue, minLength } from 'vuelidate/lib/validators'
   import { uniqueId } from '../../helpers/helpers'
   import { questsRef } from '../../config/references'
@@ -127,6 +127,7 @@
     },
     created () {
       let self = this
+      self.changeTitle()
       this.$firebaseRefs.quests.on('value', function (snapshot) {
         let quest = snapshot.val()
         self.name = quest.name
@@ -161,6 +162,13 @@
       }
     },
     methods: {
+      changeTitle () {
+        Events.$emit('changeTitle', {
+          title: 'Editar quest',
+          subtitle: '',
+          obj: true
+        })
+      },
       onAddAlternative(){
         const newAlternative = {
           key: uniqueId(),
