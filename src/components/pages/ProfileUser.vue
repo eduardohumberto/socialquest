@@ -3,29 +3,31 @@
     <div style="width: 600px; max-width: 100vw;">
       <div class="row">
         <div class="col-2">
-          <img src="~assets/main-logo.png" class="avatar">
+          <img v-if="!getAvatar()" src="~assets/user-default.png" class="avatar">
+          <img v-else :src="getAvatar()" class="avatar">
         </div>
         <div>
           <h6>
-            Nome completo do usuarios<br>
-            <small>@blur</small>
+            @{{ getUserName() }}<br>
           </h6>
         </div>
       </div>
       <br>
       <list-quest v-if="results" :results="results" :isReady="isReady"></list-quest>
+      <q-spinner class="justify-center" style="height: 50px"  v-else/>
     </div>
   </div>
 </template>
 <script>
-  import { Events } from 'quasar'
+  import { QSpinner,Events } from 'quasar'
   import ListQuest from '../common/ListQuest.vue'
   import { questsRef } from '../../config/references'
   import store from '../../store/store'
 
   export default {
     components: {
-      ListQuest
+      ListQuest,
+      QSpinner,
     },
     firebase: {
       quests: questsRef
@@ -59,6 +61,12 @@
           obj: true
         })
       },
+      getUserName(){
+        return this.$store.getters['auth/getUser'].username
+      },
+      getAvatar(){
+        return (this.$store.getters['auth/getUser'].avatar) ? this.$store.getters['auth/getUser'].username : false
+      }
     }
   }
 </script>

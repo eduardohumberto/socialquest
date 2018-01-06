@@ -81,6 +81,14 @@
           O máximo de Tags são 3!
         </p>
       </q-field>
+      <br>
+      <q-field
+        helper="Limitar sua quest para apenas usuários selecionados (Deixar em branco para ser pública)">
+        <q-search v-model="terms" placeholder="Digite o nome do usuário">
+          <q-autocomplete @search="search" @selected="selectUser"  :min-characters="2" />
+        </q-search>
+      </q-field>
+      <list-user :isReady="(shareUsers.length > 0) ? true : false" :results="shareUsers" @removeUser="removeUser($event)" />
       <!--q-field
         helper="Inserir imagem para sua Quest (Opcional)">
         <q-uploader :url="img"
@@ -99,12 +107,22 @@
   </div>
 </template>
 <script>
-  import { QField, QDatetime, QInput, QSelect, QChipsInput, QRating, QUploader,
+  import { QField, QDatetime, QInput, QSelect, QChipsInput, QRating, QUploader, QAutocomplete, QSearch,
     QBtn, QList, QItem, QItemMain, Toast, Loading, QIcon, QItemSide,Events } from 'quasar'
   import { required, maxLength, minValue, minLength } from 'vuelidate/lib/validators'
   import { uniqueId } from '../../helpers/helpers'
-  import { questsRef } from '../../config/references'
-  import store from '../../store/store'
+  import { usersRef } from '../../config/references'
+  import ListUser from '../common/ListUser.vue'
+
+  const parseAutocomplete = (array) => {
+    return array.map(user => {
+      return {
+        label: '@' + user.username,
+        avatar: (user.avatar) ? user.avatar : '/statics/user-default.png',
+        value: user.uid
+      }
+    })
+  }
 
   const modelAlternatives = ( arrayAlternativesDefault ) => {
     let arrayAlternatives = {}
@@ -132,7 +150,10 @@
       QList,
       QItem,
       QItemMain,
-      QItemSide
+      QItemSide,
+      QAutocomplete,
+      QSearch,
+      ListUser
     },
     data () {
       return {
@@ -142,6 +163,8 @@
         hashtags: [],
         img: '',
         cover: '',
+        terms: '',
+        shareUsers: [],
         user: this.$store.getters['auth/getUser']
       }
     },
@@ -192,6 +215,25 @@
       },
       remove(file){
         this.cover = ''
+      },
+      search (terms, done) {
+        usersRef.orderByChild('username').startAt(terms).endAt(terms + '\uf8ff').on('value', function(snapshot) {
+          let user = snapshot.val()
+          let array = []
+          for (let index in user){
+            array.push(user[index])
+          }
+          done(parseAutocomplete(array))
+        })
+      },
+      selectUser (item) {
+        this.terms = ''
+        this.shareUsers.push(item)
+      },
+      removeUser ($event) {
+        let uid = $event
+        this.shareUsers = this.shareUsers.filter(alt => alt.value !== uid)
+        console.log(uid)
       },
       submit () {
         if (this.$v.$invalid) {

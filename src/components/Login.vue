@@ -12,7 +12,7 @@
         </q-card-main>
         <br>
         <q-card-actions>
-          <q-btn @click="login" color="primary" class="round full-width margin-min">Login</q-btn>
+          <q-btn @click="login" color="primary" class="round full-width">Login</q-btn>
           <q-btn @click="toRegister" color="secondary" class="round full-width margin-min">Cadastre-se</q-btn>
         </q-card-actions>
       </q-card>

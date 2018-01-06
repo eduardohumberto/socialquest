@@ -10,6 +10,7 @@ export const create = ({commit, dispatch}, quest) => {
     }
     let userkey = questsRef.push(quest)
     if (userkey.key) {
+      // TODO: insert specific node for each shareQuest shareQuest { quest:uid user:uid}
       commit('addUserQuest', quest)
       resolve(quest)
     }
@@ -36,6 +37,7 @@ export const update = ({commit}, quest) => {
 
     let userkey = db.ref().update(objUpdate)
     if (userkey) {
+      // TODO: remove all previous shared nodes and insert specific node for each  shareQuest { quest:uid user:uid}
       commit('updateUserQuest', quest)
       resolve(quest)
     }

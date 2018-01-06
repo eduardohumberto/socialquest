@@ -2,11 +2,11 @@
   <div>
     <q-tabs>
       <!-- Tabs - notice slot="title" -->
-      <q-tab defaul slot="title" name="public" icon="public" />
-      <q-tab  slot="title" name="private" icon="lock" />
-      <q-tab  slot="title" name="shared" icon="shared" />
+      <q-tab default slot="title" name="public" icon="public" />
+      <q-tab slot="title" name="private" icon="lock" />
+      <q-tab slot="title" name="shared" icon="shared" />
       <q-tab slot="title" name="trash" icon="delete" />
-      <q-tab  slot="title" name="tab-1" icon="person" />
+      <q-tab slot="title" name="tab-1" icon="person" />
       <q-tab slot="title" name="tab-2" icon="people" />
 
       <q-tab-pane name="public">
@@ -99,16 +99,16 @@
     firebase: {
       quests: questsRef
     },
-    data(){
+    data () {
       return {
         isReady: false,
         results: []
       }
     },
-    created (){
+    created () {
       let self = this
       self.changeTitle()
-      this.$firebaseRefs.quests.orderByChild('user').equalTo(store.state['auth'].user.uid).on('value', function(snapshot) {
+      this.$firebaseRefs.quests.orderByChild('user').equalTo(store.state['auth'].user.uid).on('value', function (snapshot) {
         self.isReady = true
         let onlyPublished = {}
         let allUserQuests = snapshot.val()
@@ -139,9 +139,9 @@
         this.$store.dispatch('quest/setSingleQuest', uid)
         this.$router.push('/app/edit-quest/' + uid)
       },
-      moveToTrash(uid){
+      moveToTrash (uid) {
         let self = this
-        for (let index in this.$refs.popover){
+        for (let index in this.$refs.popover) {
           this.$refs.popover[index].close()
         }
         let uidUser = this.$store.getters['auth/getUser'].uid
@@ -153,7 +153,7 @@
               label: 'Confirmar ação',
               handler () {
                 self.$store.dispatch('quest/alterQuestStatus', { uid: uid, user: uidUser, status: 'trash'})
-                  .then( (success) => {
+                  .then((success) => {
                     Toast.create.positive({
                       html: 'Enviado para lixeira',
                       icon: 'success'})
@@ -163,7 +163,7 @@
             {
               label: 'Cancelar',
               handler () {
-                return false;
+                return false
               }
             }
           ]

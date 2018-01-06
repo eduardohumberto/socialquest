@@ -50,7 +50,12 @@
             @click="submit"
             color="primary"
             icon-right="send"
-            class="round margin-min">Registrar</q-btn>
+            class="round full-width">Registrar</q-btn>
+          <q-btn
+            @click="back"
+            color="red"
+            icon="keyboard_arrow_left"
+            class="round full-width margin-min">Voltar</q-btn>
         </q-card-actions>
       </q-card>
     </div>
@@ -165,8 +170,8 @@
           this.$router.push('/')
         })
       },
-      tryOnce(val){
-
+      back (){
+        this.$router.push('/login')
       }
     },
     computed: {
