@@ -16,14 +16,17 @@
           <p v-if="!$v.email.email">Digite um email válido.</p>
           <p v-if="!$v.email.required  && $v.email.$dirty">Email é obrigatório.</p>
           <q-input
-              float-label="CPF"
+              prefix="@"
+              float-label="Nome de usuário"
+              placeholder="user"
               type="text"
-              id="cpf"
-              @blur="$v.cpf.$touch()"
-              :error="$v.cpf.$error"
-              v-mask="'###.###.###-##'"
-              v-model="cpf"></q-input>
-            <p v-if="!$v.cpf.minLen">Digite um CPF Válido.</p>
+              id="username"
+              @blur="$v.username.$touch()"
+              :error="$v.username.$error"
+              v-model="username"></q-input>
+            <p v-if="!$v.username.maxLen">Digite um nome de usuário com ate 30 caracteres.</p>
+            <p v-if="!$v.username.required  && $v.username.$dirty">Usuário é obrigatório.</p>
+            <p v-if="!$v.username.unique && !$v.username.$pending && $v.username.$dirty">Este usuário já está sendo utilizado</p>
           <q-input
              float-label="Senha"
              type="password"
@@ -70,8 +73,10 @@
     Toast,
     Loading
   } from 'quasar'
-  import { required, email, numeric, minValue, minLength, sameAs } from 'vuelidate/lib/validators'
+  import { required, email, numeric, minValue, minLength, maxLength, sameAs } from 'vuelidate/lib/validators'
   import { mask } from 'vue-the-mask'
+  import { usersRef } from '../config/references'
+  import axios from '../axios/axios'
 
   export default {
     name: 'register',
@@ -93,10 +98,18 @@
     data () {
       return {
         email: '',
-        cpf: null,
+        username: '',
         password: '',
         confirmPassword: ''
       }
+    },
+    watch: {
+      username: function (val) {
+        this.username = val.replace(' ', '_').trim()
+      }
+    },
+    firebase: {
+      users: usersRef
     },
     validations: {
       email: {
@@ -109,9 +122,17 @@
           return true
         }
       },
-      cpf: {
+      username: {
         required,
-        minLen: minLength(14)
+        maxLen: maxLength(30),
+        unique: val => {
+          if (val === '') return true
+
+          return axios.get('/users.json?orderBy="username"&equalTo="' + val + '"')
+            .then(res => {
+              return Object.keys(res.data).length === 0
+            })
+        }
       },
       password: {
         required,
@@ -133,7 +154,7 @@
         Loading.show()
         this.$store.dispatch('auth/signup', {
           email: this.email,
-          cpf: this.cpf,
+          username: this.username,
           password: this.password
         }).then(() => {
           Loading.hide()
@@ -143,6 +164,9 @@
           console.log(error)
           this.$router.push('/')
         })
+      },
+      tryOnce(val){
+
       }
     },
     computed: {

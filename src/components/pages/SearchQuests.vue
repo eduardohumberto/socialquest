@@ -4,7 +4,7 @@
     <q-input
       v-model="search"
       @keyup="getEnter($event)"
-      float-label="Use # para buscar por tags"
+      float-label="Use # para buscar por tags ou @ para usuários"
       :after="[{icon: 'search', content: true, handler () { onSearch() }}]" />
       <transition  enter-active-class="animated slideInUp"
                    leave-active-class="animated fadeOut"

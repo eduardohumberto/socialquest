@@ -1,6 +1,6 @@
 <template>
   <div class="layout-padding docs-input row justify-center">
-    <div style="width: 500px; max-width: 90vw;">
+    <div style="width: 600px; max-width: 100vw;">
       <q-field
         :count="140"
         helper="Nome de sua Quest">

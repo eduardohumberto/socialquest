@@ -16,9 +16,9 @@
         <q-item-side icon="home" />
         <q-item-main label="Home" sublabel="Retornar a página inical" />
       </q-side-link>
-      <q-side-link item to="/app/takt">
+      <q-side-link item to="/app/my-profile">
         <q-item-side icon="account_circle" />
-        <q-item-main label="Meus dados" sublabel="Alterar suas informações" />
+        <q-item-main label="Meu perfil" sublabel="Veja como os usuarios veem seu perfil" />
       </q-side-link>
       <!--q-side-link item to="/app/oee">
         <q-item-side icon="show_chart" />

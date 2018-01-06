@@ -36,7 +36,7 @@ export default {
           .createUserWithEmailAndPassword(authData.email, authData.password)
           .then(
             user => {
-              let newUser = { uid: user.uid, cpf: authData.cpf, email: authData.email }
+              let newUser = { uid: user.uid, username: authData.username, email: authData.email }
               dispatch('storeUser', newUser)
               saveLocal(user.refreshToken, newUser)
               resolve(authData)
@@ -57,7 +57,7 @@ export default {
               // this.$router.replace('dashboard');
               usersRef.orderByChild('email').equalTo(authData.email).on('value', function(snapshot) {
                 let user = snapshot.val()
-                for ( let index in user){
+                for (let index in user){
                   commit('storeUser', user[index])
                   saveLocal(responseUser.refreshToken, user[index])
                   resolve(user[index])

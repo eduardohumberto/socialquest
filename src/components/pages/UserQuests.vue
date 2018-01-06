@@ -2,11 +2,14 @@
   <div>
     <q-tabs>
       <!-- Tabs - notice slot="title" -->
-      <q-tab default count="5" slot="title" name="tab-1" icon="person" />
+      <q-tab defaul slot="title" name="public" icon="public" />
+      <q-tab  slot="title" name="private" icon="lock" />
+      <q-tab  slot="title" name="shared" icon="shared" />
+      <q-tab slot="title" name="trash" icon="delete" />
+      <q-tab  slot="title" name="tab-1" icon="person" />
       <q-tab slot="title" name="tab-2" icon="people" />
-      <q-tab slot="title" name="tab-5" icon="delete" />
 
-      <q-tab-pane name="tab-1">
+      <q-tab-pane name="public">
         <div class="layout-padding row justify-center">
           <div style="width: 500px; max-width: 90vw;">
             <q-list highlight inset-separator v-if="isReady">
@@ -72,7 +75,6 @@
   } from 'quasar'
   import { questsRef } from '../../config/references'
   import store from '../../store/store'
-  import router from '../../router'
 
   export default {
     components: {
@@ -131,11 +133,11 @@
       },
       singleQuest (uid) {
         this.$store.dispatch('quest/setSingleQuest', uid)
-        this.$router.push('/app/single-quest/'+uid)
+        this.$router.push('/app/single-quest/' + uid)
       },
       editQuest (uid) {
         this.$store.dispatch('quest/setSingleQuest', uid)
-        this.$router.push('/app/edit-quest/'+uid)
+        this.$router.push('/app/edit-quest/' + uid)
       },
       moveToTrash(uid){
         let self = this
