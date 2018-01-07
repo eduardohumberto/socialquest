@@ -6,7 +6,8 @@ export default {
   namespaced: true,
   state: {
     userQuests: [],
-    singleQuest: ''
+    singleQuest: '',
+    objectQuest: ''
   },
   mutations,
   actions,

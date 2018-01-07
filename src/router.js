@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import store from './store/store'
+import { sharedRef } from './config/references'
+import { Toast } from 'quasar'
 
 // import Hello from '@/Hello.vue'
 
@@ -73,7 +75,27 @@ export default new VueRouter({
         { path: 'home', component: load('Home') },
         { path: 'create-quest', component: loadPages('CreateQuest'), name: 'CreateQuest'},
         { path: 'user-quests', component: loadPages('UserQuests'), name: 'UserQuest' },
-        { path: 'single-quest/:uid', component: loadPages('SingleQuest'), name: 'SingleQuest' },
+        {
+          path: 'single-quest/:uid',
+          component: loadPages('SingleQuest'),
+          name: 'SingleQuest',
+          beforeEnter (to, from, next) {
+            let quest = store.getters['quest/getObjectQuest']
+            if (quest.isShared && quest.user != store.state['auth'].user.uid) {
+              // verify if user is allowed if the quest is private
+              sharedRef.orderByChild('user').equalTo(store.state['auth'].user.uid).on('value', (snapshot) => {
+                let val = snapshot.val()
+                if (val) {
+                  next()
+                } else {
+                  next('/app')
+                  Toast.create('Você não pode votar nesta Quest!')
+                }
+              })
+            }
+            next()
+          }
+        },
         { path: 'edit-quest/:uid', component: loadPages('EditQuest'), name: 'EditQuest' },
         { path: 'top-quests', component: loadPages('TopQuests'), name: 'TopQuests' },
         { path: 'search-quests', component: loadPages('SearchQuests'), name: 'SearchQuests' },

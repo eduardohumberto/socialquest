@@ -13,12 +13,12 @@
           label-lines="2"
           :sublabel="quest.description"
           sublabel-lines="2"
-          @click="singleQuest(index)"
+          @click="singleQuest(index,quest)"
         />
         <q-item-side right icon="more_vert">
           <q-popover ref="popover">
             <q-list link>
-              <q-item @click="editQuest(index)">
+              <q-item @click="editQuest(index, quest)">
                 <q-item-main label="Editar" />
               </q-item>
               <q-item @click="moveToTrash(index)">
@@ -84,12 +84,14 @@
 
         return false
       },
-      singleQuest (uid) {
+      singleQuest (uid, quest) {
         this.$store.dispatch('quest/setSingleQuest', uid)
+        this.$store.dispatch('quest/setObjectQuest', quest)
         this.$router.push('/app/single-quest/' + uid)
       },
-      editQuest (uid) {
+      editQuest (uid, quest) {
         this.$store.dispatch('quest/setSingleQuest', uid)
+        this.$store.dispatch('quest/setObjectQuest', quest)
         this.$router.push('/app/edit-quest/' + uid)
       },
       moveToTrash (uid) {

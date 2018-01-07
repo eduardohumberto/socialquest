@@ -3,6 +3,9 @@ import Vue from 'vue'
 export const setSingleQuest = (state, quest) => {
   state.singleQuest = quest
 }
+export const setObjectQuest = (state, quest) => {
+  state.objectQuest = quest
+}
 
 export const addUserQuest = (state, quest) => {
   state.userQuests.push(quest)

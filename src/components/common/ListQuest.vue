@@ -8,7 +8,7 @@
       <q-item-side v-if="isSelectedByUser(quest)"  icon="done" bg-color="green"/>
       <q-item-side v-else  icon="help" />
       <q-item-main
-        @click="singleQuest(index)"
+        @click="singleQuest(index,quest)"
       >
         <q-item-tile label lines="1">{{ quest.name }}</q-item-tile>
         <q-item-tile sublabel lines="1">{{ quest.hashtag_0 | hashtag }} {{ quest.hashtag_1 | hashtag }} {{ quest.hashtag_2 | hashtag }}</q-item-tile>
@@ -69,8 +69,9 @@
 
         return false
       },
-      singleQuest (uid) {
+      singleQuest (uid,quest) {
         this.$store.dispatch('quest/setSingleQuest', uid)
+        this.$store.dispatch('quest/setObjectQuest', quest)
         this.$router.push('/app/single-quest/' + uid)
       }
     }

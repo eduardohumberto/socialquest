@@ -44,15 +44,26 @@ export const update = ({commit}, payload) => {
     }
 
     if (objUpdate) {
-      // TODO: remove all previous shared nodes and insert specific node for each  shareQuest { quest:uid user:uid}
+      // if there is references
+      if (payload.sharedKeys && payload.sharedKeys.length > 0) {
+        let sharedKeys = payload.sharedKeys
+        for (let i in sharedKeys) {
+          sharedRef.child(sharedKeys[i]).remove()
+        }
+      }
+      // add new shared if exists
       if (payload.quest.isShared) {
         let sharedKey = []
         for (let user of payload.sharedUser) {
-          sharedKey.push(sharedRef.push({user: user.value, quest: questKey.key}).key)
+          sharedKey.push(sharedRef.push({user: user.value, quest: quest.uid}).key)
         }
-        payload.quest['sharedKeys'] = sharedKey
+        newPath = pathRoot + '/sharedKeys'
+        objUpdate[newPath] = sharedKey
       }
-
+      else {
+        newPath = pathRoot + '/sharedKeys'
+        objUpdate[newPath] = null
+      }
       db.ref().update(objUpdate)
       commit('updateUserQuest', quest)
       resolve(quest)
@@ -60,18 +71,19 @@ export const update = ({commit}, payload) => {
   })
 }
 
-export const alterQuestStatus = ({commit, rootGetters},payload) => {
+export const alterQuestStatus = ({commit, rootGetters}, payload) => {
   return new Promise((resolve, reject) => {
-    if (payload.user !== rootGetters['auth/getUser'].uid){
+    if (payload.user !== rootGetters['auth/getUser'].uid) {
       reject(Error('not owner'))
-    } else {
+    }
+    else {
       let objUpdate = {}
       let pathRoot = 'quests/' + payload.uid
       let pathStatus = pathRoot + '/status'
       objUpdate[pathStatus] = payload.status
       resolve(db.ref().update(objUpdate))
     }
-  });
+  })
 }
 
 export const saveVote = ({rootGetters}, payload) => {
@@ -80,19 +92,21 @@ export const saveVote = ({rootGetters}, payload) => {
   let indexobj = rootGetters['auth/getUser'].uid // get the user uid
   obj[indexobj] = payload.index // add the user uid as a property and the alternative as value
 
-  if (payload.quest.allvotes && payload.quest.allvotes[indexobj]){
+  if (payload.quest.allvotes && payload.quest.allvotes[indexobj]) {
     let remove = payload.quest.allvotes[indexobj]
     if (remove === payload.index) {
       singleRef.child('/alternatives/' + remove + '/votes/' + indexobj).remove()
       singleRef.child('/allvotes/' + indexobj).remove()
       singleRef.child('/countVotes/').set(--payload.quest.countVotes)
-    } else {
+    }
+    else {
       singleRef.child('/alternatives/' + remove + '/votes/' + indexobj).remove()
       singleRef.child('/alternatives/' + payload.index + '/votes/' + indexobj).set(payload.index)
       singleRef.child('/allvotes/' + indexobj).set(payload.index)
     }
-  } else {
-    singleRef.child('/alternatives/' +  payload.index + '/votes/' + indexobj).set(payload.index)
+  }
+  else {
+    singleRef.child('/alternatives/' + payload.index + '/votes/' + indexobj).set(payload.index)
     singleRef.child('/allvotes/' + indexobj).set(payload.index)
     singleRef.child('/countVotes/').set((payload.quest.countVotes) ? ++payload.quest.countVotes : 1)
   }
@@ -100,4 +114,8 @@ export const saveVote = ({rootGetters}, payload) => {
 
 export const setSingleQuest = ({commit}, quest) => {
   commit('setSingleQuest', quest)
+}
+
+export const setObjectQuest = ({commit}, quest) => {
+  commit('setObjectQuest', quest)
 }

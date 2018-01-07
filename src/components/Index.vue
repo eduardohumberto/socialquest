@@ -13,7 +13,7 @@
     -->
     <transition
       name="transitions"
-      enter-active-class="animated slideInUp"
+      enter-active-class="animated slideInLeft"
       leave-active-class="animated fadeOut"
       mode="out-in"
     >

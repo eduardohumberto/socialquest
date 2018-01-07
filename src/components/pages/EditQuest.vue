@@ -127,7 +127,7 @@
     })
   }
 
-  const modelAlternatives = ( arrayAlternativesDefault ) => {
+  const modelAlternatives = (arrayAlternativesDefault) => {
     let arrayAlternatives = {}
 
     for (let alternative of arrayAlternativesDefault) {
@@ -169,9 +169,10 @@
         cover: '',
         id: (this.$route.params) ? this.$route.params.uid : null,
         user: this.$store.getters['auth/getUser'],
-        previousAlternatives:[],
+        previousAlternatives: [],
         terms: '',
         shareUsers: [],
+        sharedKeys: [],
         submitted: false
       }
     },
@@ -193,6 +194,7 @@
         self.initializeTags(quest)
         if (quest.isShared) {
           self.initializeShared()
+          self.sharedKeys = quest.sharedKeys
         }
       })
     },
@@ -272,7 +274,7 @@
               {
                 label: 'Cancelar',
                 handler () {
-                  return false;
+                  return false
                 }
               }
             ]
@@ -281,10 +283,10 @@
           this.alternatives = this.alternatives.filter(alt => alt.key !== id)
         }
       },
-      addFiles(file) {
+      addFiles (file) {
         this.cover = file[0]
       },
-      remove(file){
+      remove (file) {
         this.cover = ''
       },
       submit () {
@@ -321,7 +323,8 @@
             updateAt: Date.now(),
             isShared: (this.shareUsers.length > 0)
           },
-          sharedUser: this.shareUsers
+          sharedUser: this.shareUsers,
+          sharedKeys: this.sharedKeys
         }).then(() => {
           Loading.hide()
           this.$router.push('/app/user-quests')
@@ -354,7 +357,7 @@
             }
           })
       },
-      initializeTags(quest){
+      initializeTags (quest) {
         let indexes = ['hashtag_0', 'hashtag_1', 'hashtag_2']
         for (let tag of indexes) {
           if (quest[tag]) {
