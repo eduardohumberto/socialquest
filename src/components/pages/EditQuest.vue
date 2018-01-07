@@ -65,6 +65,33 @@
        </q-field>
 
        <q-field
+         helper="Escreva até 3 tags para sua quest!">
+         <q-list>
+           <q-item multiline>
+             <q-item-side icon="label" />
+             <q-item-main>
+               <q-chips-input
+                 :error="$v.hashtags.$error"
+                 @input="$v.hashtags.$touch()"
+                 v-model="hashtags"  class="no-margin" placeholder="Ex: Goiania, Eleicoes, barzinhos (Tecle enter ou clique ao lado)"/>
+             </q-item-main>
+           </q-item>
+         </q-list>
+         <p style="font-size: 13px;" v-if="!$v.hashtags.maxLen">
+           O máximo de Tags são 3!
+         </p>
+       </q-field>
+
+       <br>
+
+       <q-field
+         helper="Limitar sua quest para apenas usuários selecionados (Deixar em branco para ser pública)">
+         <q-search v-model="terms" placeholder="Digite o nome do usuário">
+           <q-autocomplete @search="search" @selected="selectUser"  :min-characters="2" />
+         </q-search>
+       </q-field>
+       <list-user :isReady="(shareUsers.length > 0) ? true : false" :results="shareUsers" @removeUser="removeUser($event)" />
+       <!--q-field
          helper="Inserir imagem para sua Quest (Opcional)">
          <q-uploader :url="img"
                      :hide-upload-button="true"
@@ -72,7 +99,7 @@
                      @add="addFiles"
                      @remove:cancel="remove"
                      :extensions="'.gif,.jpg,.jpeg,.png'"/>
-       </q-field>
+       </q-field-->
        <q-btn
          @click="submit"
          icon-right="send"
@@ -82,11 +109,23 @@
   </div>
 </template>
 <script>
-  import { QField, QDatetime, QInput, QSelect, QChipsInput, QRating, QUploader, QBtn, Toast, Loading, Dialog, Events } from 'quasar'
+  import { QField, QDatetime, QInput, QSelect, QChipsInput, QRating, QUploader, QBtn, Toast, QAutocomplete, QSearch,
+    Loading, Dialog, QList, QItem, QItemMain, QIcon, QItemSide, Events } from 'quasar'
   import { required, maxLength, minValue, minLength } from 'vuelidate/lib/validators'
   import { uniqueId } from '../../helpers/helpers'
-  import { questsRef } from '../../config/references'
+  import { questsRef, usersRef, sharedRef } from '../../config/references'
   import store from '../../store/store'
+  import ListUser from '../common/ListUser.vue'
+
+  const parseAutocomplete = (array) => {
+    return array.map(user => {
+      return {
+        label: '@' + user.username,
+        avatar: (user.avatar) ? user.avatar : '/statics/user-default.png',
+        value: user.uid
+      }
+    })
+  }
 
   const modelAlternatives = ( arrayAlternativesDefault ) => {
     let arrayAlternatives = {}
@@ -111,24 +150,37 @@
       QRating,
       QUploader,
       QBtn,
-      Dialog
+      Dialog,
+      QList,
+      QItem,
+      QItemMain,
+      QItemSide,
+      QAutocomplete,
+      QSearch,
+      ListUser
     },
     data () {
       return {
         name: '',
         description: '',
         alternatives: [],
+        hashtags: [],
         img: '',
         cover: '',
         id: (this.$route.params) ? this.$route.params.uid : null,
         user: this.$store.getters['auth/getUser'],
-        previousAlternatives:[]
+        previousAlternatives:[],
+        terms: '',
+        shareUsers: [],
+        submitted: false
       }
     },
     created () {
       let self = this
       self.changeTitle()
-      this.$firebaseRefs.quests.on('value', function (snapshot) {
+      this.$firebaseRefs.quests.child(this.$store.getters['quest/getSingleQuest']).on('value', function (snapshot) {
+        if (self.submitted) return
+
         let quest = snapshot.val()
         self.name = quest.name
         self.description = quest.description
@@ -138,14 +190,18 @@
           self.alternatives.push(obj)
           self.previousAlternatives.push(index)
         }
-
+        self.initializeTags(quest)
+        if (quest.isShared) {
+          self.initializeShared()
+        }
       })
     },
     firebase: {
-      quests: questsRef.child(store.getters['quest/getSingleQuest'])
+      quests: questsRef,
+      shared: sharedRef
     },
     validations: {
-      name:{
+      name: {
         required,
         maxLen: maxLength(140)
       },
@@ -159,6 +215,9 @@
             minLen: minLength(1)
           }
         }
+      },
+      hashtags: {
+        maxLen: maxLength(3)
       }
     },
     methods: {
@@ -176,6 +235,27 @@
         }
         this.alternatives.push(newAlternative)
         this.$v.alternatives.$touch()
+      },
+      search (terms, done) {
+        usersRef.orderByChild('username').startAt(terms).endAt(terms + '\uf8ff').on('value', function(snapshot) {
+          let user = snapshot.val()
+          let array = []
+          for (let index in user){
+            array.push(user[index])
+          }
+          done(parseAutocomplete(array))
+        })
+      },
+      selectUser (item) {
+        this.terms = ''
+        let index = this.shareUsers.findIndex(element => element.value == item.value)
+        if (index < 0) {
+          this.shareUsers.push(item)
+        }
+      },
+      removeUser ($event) {
+        let uid = $event
+        this.shareUsers = this.shareUsers.filter(alt => alt.value !== uid)
       },
       removeAlternative (id) {
         if (this.previousAlternatives.indexOf(id)) {
@@ -197,7 +277,7 @@
               }
             ]
           })
-        }else{
+        } else {
           this.alternatives = this.alternatives.filter(alt => alt.key !== id)
         }
       },
@@ -213,7 +293,7 @@
           Toast.create('Por favor preencha o formulário corretamente.')
           return false
         }
-
+        this.submitted = true
         Loading.show()
         if (this.cover !== '') {
           this.$store.dispatch('upload/upload', this.cover)
@@ -222,29 +302,65 @@
             })
             .catch((error) => {
               Loading.hide()
-              console.log(error)
             })
         } else {
           this.insert(this.cover)
         }
       },
       insert (image) {
-        let user = this.$store.getters['auth/getUser']
         this.$store.dispatch('quest/update', {
-          uid: this.id,
-          name: this.name,
-          description: this.description,
-          alternatives: modelAlternatives(this.alternatives),
-          image: image,
-          updateAt: Date.now()
+          quest: {
+            uid: this.id,
+            name: this.name,
+            description: this.description,
+            alternatives: modelAlternatives(this.alternatives),
+            hashtag_0: (this.hashtags[0]) ? this.hashtags[0] : '',
+            hashtag_1: (this.hashtags[1]) ? this.hashtags[1] : '',
+            hashtag_2: (this.hashtags[2]) ? this.hashtags[2] : '',
+            image: image,
+            updateAt: Date.now(),
+            isShared: (this.shareUsers.length > 0)
+          },
+          sharedUser: this.shareUsers
         }).then(() => {
           Loading.hide()
           this.$router.push('/app/user-quests')
         }).catch((error) => {
           Loading.hide()
-          console.log(error)
           this.$router.push('/app')
         })
+      },
+      initializeShared () {
+        const self = this
+        if (!this.$firebaseRefs.shared) return
+        // get shared nodes
+        this.$firebaseRefs.shared.orderByChild('quest').equalTo(store.getters['quest/getSingleQuest'])
+          .on('value', (snapshot) => {
+            let shared = snapshot.val()
+            // iterate on nodes
+            for (let index in shared) {
+              // get user with this quest is shared
+              let ref = usersRef.orderByChild('uid').equalTo(shared[index].user)
+              ref.on('value', (snapshot) => {
+                let user = snapshot.val()
+                for (let userIndex in user) {
+                  self.shareUsers.push({
+                    label: '@' + user[userIndex].username,
+                    avatar: (user[userIndex].avatar) ? user[userIndex].avatar : '/statics/user-default.png',
+                    value: user[userIndex].uid
+                  })
+                }
+              })
+            }
+          })
+      },
+      initializeTags(quest){
+        let indexes = ['hashtag_0', 'hashtag_1', 'hashtag_2']
+        for (let tag of indexes) {
+          if (quest[tag]) {
+            this.hashtags.push(quest[tag])
+          }
+        }
       }
     }
   }

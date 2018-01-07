@@ -61,12 +61,12 @@
     created () {
       let self = this
       self.changeTitle()
-      this.$firebaseRefs.quests.on('value', function(snapshot) {
+      this.$firebaseRefs.quests.child(self.$store.getters['quest/getSingleQuest']).on('value', function(snapshot) {
         self.quest = snapshot.val()
       })
     },
     firebase: {
-      quests: questsRef.child(store.getters['quest/getSingleQuest'])
+      quests: questsRef
     },
     methods: {
       changeTitle () {

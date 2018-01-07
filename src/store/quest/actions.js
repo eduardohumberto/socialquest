@@ -2,22 +2,31 @@ import { app } from '../../config/firebaseConfig'
 
 let db = app.database()
 let questsRef = db.ref('quests')
+let sharedRef = db.ref('sharedQuest')
 
-export const create = ({commit, dispatch}, quest) => {
+export const create = ({commit, dispatch}, payload) => {
   return new Promise((resolve, reject) => {
-    if (!quest.user) {
+    if (!payload.quest.user) {
       return false
     }
-    let userkey = questsRef.push(quest)
-    if (userkey.key) {
-      // TODO: insert specific node for each shareQuest shareQuest { quest:uid user:uid}
-      commit('addUserQuest', quest)
-      resolve(quest)
+    let questKey = questsRef.push()
+    if (questKey.key) {
+      if (payload.quest.isShared) {
+        let sharedKey = []
+        for (let user of payload.sharedUser) {
+          sharedKey.push(sharedRef.push({user: user.value, quest: questKey.key}).key)
+        }
+        payload.quest['sharedKeys'] = sharedKey
+      }
+      questKey.set(payload.quest)
+      commit('addUserQuest', payload.quest)
+      resolve(payload.quest)
     }
   })
 }
 
-export const update = ({commit}, quest) => {
+export const update = ({commit}, payload) => {
+  let quest = payload.quest
   return new Promise((resolve, reject) => {
     let objUpdate = {}
     let pathRoot = 'quests/' + quest.uid
@@ -26,18 +35,25 @@ export const update = ({commit}, quest) => {
       objUpdate[path] = quest.alternatives[index].name
     }
 
-    let pathName = pathRoot + '/name'
-    objUpdate[pathName] = quest.name
-    let pathDescription = pathRoot + '/description'
-    objUpdate[pathDescription] = quest.description
-    let pathImage = pathRoot + '/image'
-    objUpdate[pathImage] = quest.image
-    let pathUpdate = pathRoot + '/updateAt'
-    objUpdate[pathUpdate] = quest.updateAt
+    let fields = ['name', 'description',
+      'image', 'updateAt', 'hashtag_0', 'hashtag_1', 'hashtag_2', 'isShared']
+    let newPath = ''
+    for (let field of fields) {
+      newPath = pathRoot + '/' + field
+      objUpdate[newPath] = quest[field]
+    }
 
-    let userkey = db.ref().update(objUpdate)
-    if (userkey) {
+    if (objUpdate) {
       // TODO: remove all previous shared nodes and insert specific node for each  shareQuest { quest:uid user:uid}
+      if (payload.quest.isShared) {
+        let sharedKey = []
+        for (let user of payload.sharedUser) {
+          sharedKey.push(sharedRef.push({user: user.value, quest: questKey.key}).key)
+        }
+        payload.quest['sharedKeys'] = sharedKey
+      }
+
+      db.ref().update(objUpdate)
       commit('updateUserQuest', quest)
       resolve(quest)
     }

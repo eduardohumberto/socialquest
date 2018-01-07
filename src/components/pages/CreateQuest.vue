@@ -108,7 +108,7 @@
 </template>
 <script>
   import { QField, QDatetime, QInput, QSelect, QChipsInput, QRating, QUploader, QAutocomplete, QSearch,
-    QBtn, QList, QItem, QItemMain, Toast, Loading, QIcon, QItemSide,Events } from 'quasar'
+    QBtn, QList, QItem, QItemMain, Toast, Loading, QIcon, QItemSide, Events } from 'quasar'
   import { required, maxLength, minValue, minLength } from 'vuelidate/lib/validators'
   import { uniqueId } from '../../helpers/helpers'
   import { usersRef } from '../../config/references'
@@ -228,7 +228,10 @@
       },
       selectUser (item) {
         this.terms = ''
-        this.shareUsers.push(item)
+        let index = this.shareUsers.findIndex(element => element.value == item.value)
+        if (index < 0) {
+          this.shareUsers.push(item)
+        }
       },
       removeUser ($event) {
         let uid = $event
@@ -259,16 +262,20 @@
       insert (image) {
         let user = this.$store.getters['auth/getUser']
         this.$store.dispatch('quest/create', {
-          name: this.name,
-          description: this.description,
-          alternatives: modelAlternatives(this.alternatives),
-          image: image,
-          status: 'published',
-          hashtag_0: (this.hashtags[0]) ? this.hashtags[0] : '',
-          hashtag_1: (this.hashtags[1]) ? this.hashtags[1] : '',
-          hashtag_2: (this.hashtags[2]) ? this.hashtags[2] : '',
-          createdAt: Date.now(),
-          user: user.uid
+          quest: {
+            name: this.name,
+            description: this.description,
+            alternatives: modelAlternatives(this.alternatives),
+            image: image,
+            status: 'published',
+            hashtag_0: (this.hashtags[0]) ? this.hashtags[0] : '',
+            hashtag_1: (this.hashtags[1]) ? this.hashtags[1] : '',
+            hashtag_2: (this.hashtags[2]) ? this.hashtags[2] : '',
+            createdAt: Date.now(),
+            user: user.uid,
+            isShared: (this.shareUsers.length > 0)
+          },
+          sharedUser: this.shareUsers
         }).then(() => {
           Loading.hide()
           this.$router.push('/app/user-quests')
