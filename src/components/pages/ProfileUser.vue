@@ -13,8 +13,8 @@
         </div>
       </div>
       <br>
-      <list-quest v-if="results" :results="results" :isReady="isReady"></list-quest>
-      <q-spinner class="justify-center" style="height: 50px"  v-else/>
+      <list-quest v-if="hasResults()" :results="results" :isReady="isReady"></list-quest>
+      <h5 class="justify-center" v-else>Ops... Nenhuma Quest encontrada :(</h5>
     </div>
   </div>
 </template>
@@ -61,11 +61,14 @@
           obj: true
         })
       },
-      getUserName(){
+      getUserName () {
         return this.$store.getters['auth/getUser'].username
       },
-      getAvatar(){
+      getAvatar () {
         return (this.$store.getters['auth/getUser'].avatar) ? this.$store.getters['auth/getUser'].username : false
+      },
+      hasResults () {
+        return Object.keys(this.results).length > 0
       }
     }
   }

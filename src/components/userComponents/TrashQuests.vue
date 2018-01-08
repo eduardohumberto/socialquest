@@ -1,6 +1,7 @@
 <template>
   <div class="layout-padding row justify-center">
-    <list-quest-edit :isReady="isReady" :results="results" :isTrash="false"></list-quest-edit>
+    <list-quest-edit v-if="hasResults()" :isReady="isReady" :results="results" :isTrash="true"></list-quest-edit>
+    <h5 class="justify-center" v-else>A lixeira está vazia :)</h5>
   </div>
 </template>
 <script>
@@ -27,23 +28,26 @@
       self.changeTitle()
       this.$firebaseRefs.quests.orderByChild('user').equalTo(store.state['auth'].user.uid).on('value', function (snapshot) {
         self.isReady = true
-        let onlyPublished = {}
+        let onlyTrash = {}
         let allUserQuests = snapshot.val()
         for (let index in allUserQuests) {
-          if (allUserQuests[index].status === 'published' && (allUserQuests[index].isShared)) {
-            onlyPublished[index] = allUserQuests[index]
+          if (allUserQuests[index].status === 'trash') {
+            onlyTrash[index] = allUserQuests[index]
           }
         }
-        self.results = onlyPublished
+        self.results = onlyTrash
       })
     },
     methods: {
       changeTitle () {
         Events.$emit('changeTitle', {
-          title: 'Quests compartilhadas',
-          subtitle: 'Apenas certos usuários votam nestas quests',
+          title: 'Lixeira',
+          subtitle: 'Voltar ou excluir permanentemente',
           obj: true
         })
+      },
+      hasResults () {
+        return Object.keys(this.results).length > 0
       }
     }
   }

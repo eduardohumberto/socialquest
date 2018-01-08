@@ -217,11 +217,14 @@
         this.cover = ''
       },
       search (terms, done) {
+        let userLoggedIn = this.$store.getters['auth/getUser']
         usersRef.orderByChild('username').startAt(terms).endAt(terms + '\uf8ff').on('value', function(snapshot) {
           let user = snapshot.val()
           let array = []
           for (let index in user){
-            array.push(user[index])
+            if(user[index].uid !== userLoggedIn.uid){
+              array.push(user[index])
+            }
           }
           done(parseAutocomplete(array))
         })

@@ -17,12 +17,20 @@
         />
         <q-item-side right icon="more_vert">
           <q-popover ref="popover">
-            <q-list link>
+            <q-list v-if="!modeTrash()" link>
               <q-item @click="editQuest(index, quest)">
                 <q-item-main label="Editar" />
               </q-item>
               <q-item @click="moveToTrash(index)">
                 <q-item-main label="Remover" />
+              </q-item>
+            </q-list>
+            <q-list v-else link>
+              <q-item @click="delete(index, quest)">
+                <q-item-main label="Excluir permanente" />
+              </q-item>
+              <q-item @click="rewind(index)">
+                <q-item-main label="Publicar novamente" />
               </q-item>
             </q-list>
           </q-popover>
@@ -45,11 +53,12 @@
     QChip,
     QPopover,
     QSpinner,
-    Dialog
+    Dialog,
+    Toast
   } from 'quasar'
 
   export default {
-    props: ['results', 'isReady'],
+    props: ['results', 'isReady', 'isTrash'],
     components: {
       QInput,
       QList,
@@ -61,9 +70,10 @@
       QSpinner,
       Dialog,
       QChip,
-      QPopover
+      QPopover,
+      Toast
     },
-    data(){
+    data () {
       return {
         user: this.$store.getters['auth/getUser'],
       }
@@ -74,8 +84,11 @@
         return '#' + value
       }
     },
-    methods:{
-      isSelectedByUser(quest){
+    methods: {
+      modeTrash () {
+        return this.isTrash
+      },
+      isSelectedByUser (quest) {
         let indexobj = this.user.uid // get the user uid
 
         if (quest.allvotes && quest.allvotes[indexobj]){
