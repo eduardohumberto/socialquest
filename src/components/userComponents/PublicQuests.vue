@@ -1,6 +1,7 @@
 <template>
   <div class="layout-padding row justify-center">
-    <list-quest-edit :isReady="isReady" :results="results" :isTrash="false"></list-quest-edit>
+    <list-quest-edit  v-if="hasResults()" :isReady="isReady" :results="results" :isTrash="false"></list-quest-edit>
+    <h5 class="justify-center" v-else>Ops... Nenhuma Quest criada, crie uma agora mesmo :)</h5>
   </div>
 </template>
 <script>
@@ -38,6 +39,9 @@
       })
     },
     methods: {
+      hasResults () {
+        return Object.keys(this.results).length > 0
+      },
       changeTitle () {
         Events.$emit('changeTitle', {
           title: 'Quests públicas',

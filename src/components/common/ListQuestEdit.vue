@@ -26,7 +26,7 @@
               </q-item>
             </q-list>
             <q-list v-else link>
-              <q-item @click="delete(index, quest)">
+              <q-item @click="deleteQuest(index)">
                 <q-item-main label="Excluir permanente" />
               </q-item>
               <q-item @click="rewind(index)">
@@ -54,7 +54,8 @@
     QPopover,
     QSpinner,
     Dialog,
-    Toast
+    Toast,
+    Events
   } from 'quasar'
 
   export default {
@@ -124,6 +125,66 @@
                   .then((success) => {
                     Toast.create.positive({
                       html: 'Enviado para lixeira',
+                      icon: 'success'})
+                  })
+              }
+            },
+            {
+              label: 'Cancelar',
+              handler () {
+                return false
+              }
+            }
+          ]
+        })
+      },
+      rewind (uid) {
+        let self = this
+        for (let index in this.$refs.popover) {
+          this.$refs.popover[index].close()
+        }
+        let uidUser = this.$store.getters['auth/getUser'].uid
+        Dialog.create({
+          title: 'Atenção!',
+          message: 'Esta quest será republicada, tem certeza disso?',
+          buttons: [
+            {
+              label: 'Confirmar ação',
+              handler () {
+                self.$store.dispatch('quest/alterQuestStatus', { uid: uid, user: uidUser, status: 'published'})
+                  .then((success) => {
+                    Toast.create.positive({
+                      html: 'Publicado com sucesso!',
+                      icon: 'success'})
+                  })
+              }
+            },
+            {
+              label: 'Cancelar',
+              handler () {
+                return false
+              }
+            }
+          ]
+        })
+      },
+      deleteQuest (uid) {
+        let self = this
+        for (let index in this.$refs.popover) {
+          this.$refs.popover[index].close()
+        }
+        let uidUser = this.$store.getters['auth/getUser'].uid
+        Dialog.create({
+          title: 'Atenção!',
+          message: 'Esta quest será apagada, essa operação é irreversível',
+          buttons: [
+            {
+              label: 'Confirmar ação',
+              handler () {
+                self.$store.dispatch('quest/deleteQuest', {uid: uid, user: uidUser})
+                  .then((success) => {
+                    Toast.create.positive({
+                      html: 'Excluída com sucesso!',
                       icon: 'success'})
                   })
               }

@@ -1,11 +1,11 @@
 <template>
   <div>
-    <q-tabs align="justify">
+    <q-tabs>
       <!-- Tabs - notice slot="title" -->
-      <q-tab default slot="title" name="tab-1" icon="public" />
-      <q-tab slot="title" name="tab-2" icon="lock" />
-      <q-tab slot="title" name="tab-3" icon="people" />
-      <q-tab slot="title" name="tab-4" icon="delete" />
+      <q-tab :count="counter.pub" default slot="title" name="tab-1" icon="public" />
+      <q-tab :count="counter.priv" slot="title" name="tab-2" icon="lock" />
+      <q-tab :count="counter.shared" slot="title" name="tab-3" icon="people" />
+      <q-tab :count="counter.trash" slot="title" name="tab-4" icon="delete" />
       <!--q-tab slot="title" name="tab-5" icon="person" /-->
 
       <q-tab-pane name="tab-1">
@@ -25,7 +25,7 @@
   </div>
 </template>
 <script>
-  import { date, QTab, QTabPane, QTabs } from 'quasar'
+  import { date, QTab, QTabPane, QTabs, Events } from 'quasar'
   import PrivateQuests from '../userComponents/PrivateQuests.vue'
   import PublicQuests from '../userComponents/PublicQuests.vue'
   import SharedQuests from '../userComponents/SharedQuests.vue'
@@ -43,8 +43,12 @@
     },
     data () {
       return {
-        isReady: false,
-        results: []
+        counter: {
+          pub: 0,
+          priv: 0,
+          shared: 0,
+          trash: 0
+        }
       }
     },
     methods: {

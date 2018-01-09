@@ -112,6 +112,18 @@ export const saveVote = ({rootGetters}, payload) => {
   }
 }
 
+export const deleteQuest = ({rootGetters}, payload) => {
+  return new Promise((resolve, reject) => {
+    if (payload.user !== rootGetters['auth/getUser'].uid) {
+      reject(Error('not owner'))
+    }
+    else {
+      questsRef.child(payload.uid).remove()
+      resolve(true)
+    }
+  })
+}
+
 export const setSingleQuest = ({commit}, quest) => {
   commit('setSingleQuest', quest)
 }
