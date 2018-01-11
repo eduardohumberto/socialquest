@@ -26,8 +26,10 @@
     created () {
       let self = this
       self.changeTitle()
-      this.getDataQuest().then( (result) => {
+      this.getDataQuest().then((result) => {
         self.isReady = true
+        console.log(result)
+        self.results = result
       })
     },
     methods: {
@@ -42,8 +44,9 @@
         return Object.keys(this.results).length > 0
       },
       async getSharedQuests () {
+        let self = this
         return new Promise((resolve,reject) => {
-          this.$firebaseRefs.shared.orderByChild('user').equalTo(this.$store.getters['auth/getUser'].uid)
+          self.$firebaseRefs.shared.orderByChild('user').equalTo(self.$store.getters['auth/getUser'].uid)
             .on('value', (snapshot) => {
               let val = snapshot.val()
               if (val) {
@@ -60,14 +63,18 @@
         let shared = await this.getSharedQuests()
         return new Promise((resolve, reject) => {
           if (shared) {
+            let result = {}
             for (let index in shared) {
               let indexQuest = shared[index].quest
-              this.$firebaseRefs.quests.child(indexQuest).on('value', function (snapshot) {
-                self.results[indexQuest] = snapshot.val()
+              self.$firebaseRefs.quests.child(indexQuest).on('value', function (snapshot) {
+                let resultValue = snapshot.val()
+                if (resultValue) {
+                  result[indexQuest] = resultValue
+                }
               })
             }
+            resolve(result)
           }
-          resolve(true)
         })
       }
     }

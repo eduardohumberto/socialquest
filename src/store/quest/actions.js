@@ -3,8 +3,29 @@ import { app } from '../../config/firebaseConfig'
 let db = app.database()
 let questsRef = db.ref('quests')
 let sharedRef = db.ref('sharedQuest')
+let notificationsRef = db.ref('notifications')
 
-export const create = ({commit, dispatch}, payload) => {
+const verifyThereNoRelation = (user, quest) => {
+  return new Promise((resolve, reject) => {
+    sharedRef.orderByChild('user').equalTo(user).on('value', (snapshot) => {
+      let result = snapshot.val()
+      if (result) {
+        for (let index in result) {
+          if (result[index].quest === quest) {
+            resolve('exists')
+          }
+        }
+        resolve(true)
+      }
+      else {
+        resolve(true)
+      }
+    })
+  })
+}
+
+export const create = ({commit, dispatch, rootGetters}, payload) => {
+  let userActual = rootGetters['auth/getUser'].uid
   return new Promise((resolve, reject) => {
     if (!payload.quest.user) {
       return false
@@ -14,6 +35,14 @@ export const create = ({commit, dispatch}, payload) => {
       if (payload.quest.isShared) {
         let sharedKey = []
         for (let user of payload.sharedUser) {
+          let currentUser = rootGetters['auth/getUser'].username
+          dispatch('notification/createNotification', {
+            user: user.value,
+            type: 'share_quest',
+            quest: questKey.key,
+            sender: userActual,
+            status: false
+          }, {root: true})
           sharedKey.push(sharedRef.push({user: user.value, quest: questKey.key}).key)
         }
         payload.quest['sharedKeys'] = sharedKey
@@ -25,7 +54,8 @@ export const create = ({commit, dispatch}, payload) => {
   })
 }
 
-export const update = ({commit}, payload) => {
+export const update = ({commit, dispatch, rootGetters}, payload) => {
+  let userActual = rootGetters['auth/getUser'].uid
   let quest = payload.quest
   return new Promise((resolve, reject) => {
     let objUpdate = {}
@@ -55,10 +85,22 @@ export const update = ({commit}, payload) => {
       if (payload.quest.isShared) {
         let sharedKey = []
         for (let user of payload.sharedUser) {
-          sharedKey.push(sharedRef.push({user: user.value, quest: quest.uid}).key)
+          dispatch('notification/createNotification', {
+            user: user.value,
+            type: 'update_quest',
+            quest: quest.uid,
+            sender: userActual,
+            status: false
+          }, {root: true})
+
+          verifyThereNoRelation(user.value, quest.uid).then((result) => {
+            if (result === true) {
+              sharedKey.push(sharedRef.push({user: user.value, quest: quest.uid}).key)
+              newPath = pathRoot + '/sharedKeys'
+              objUpdate[newPath] = sharedKey
+            }
+          })
         }
-        newPath = pathRoot + '/sharedKeys'
-        objUpdate[newPath] = sharedKey
       }
       else {
         newPath = pathRoot + '/sharedKeys'

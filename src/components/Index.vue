@@ -25,7 +25,7 @@
       <q-route-tab slot="title" icon="search" to="/app/search-quests" replace  label="" />
       <q-route-tab slot="title" icon="add_box" to="/app/create-quest" replace  label="" />
       <q-route-tab slot="title" icon="person_pin" to="/app/user-quests" replace label="" />
-      <q-route-tab slot="title" count="3" icon="notifications" to="/test-layout/drawer" replace label="" />
+      <q-route-tab slot="title" :count="getNotificationCounter()" icon="notifications" to="/app/notifications" replace label="" />
     </q-tabs>
   </q-layout>
 </template>
@@ -63,9 +63,15 @@
       Events.$on('openDrawer', () => {
         this.$refs.layout.toggleLeft()
       })
+      this.$store.dispatch('notification/listenNotifications')
     },
     beforeDestroy () {
       Events.$off('openDrawer')
+    },
+    methods: {
+      getNotificationCounter(){
+        return this.$store.getters['notification/getNotReadNotifications'].length
+      }
     }
   }
 </script>

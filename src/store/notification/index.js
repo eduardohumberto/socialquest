@@ -5,7 +5,8 @@ import * as mutations from './mutations'
 export default {
   namespaced: true,
   state: {
-    userNotifications: []
+    userNotifications: {},
+    notificationsNotRead: []
   },
   mutations,
   actions,
