@@ -48,7 +48,7 @@
       QChip,
       QPopover
     },
-    data(){
+    data () {
       return {
         user: this.$store.getters['auth/getUser'],
       }
@@ -56,7 +56,7 @@
     filters: {
       hashtag: function (value) {
         if (!value) return ''
-        return '#'+value
+        return '#' + value
       }
     },
     methods:{

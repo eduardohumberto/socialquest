@@ -19,7 +19,6 @@ export const listenNotifications = ({commit, rootGetters}, payload) => {
   if (!currentUser) return
   notificationsRef.orderByChild('user').equalTo(currentUser.uid).on('value', (snap) => {
     let result = snap.val()
-    console.log(result, 'result', notRead)
     if (result) {
       commit('setUserNotifications', result)
       for (let index in result) {
