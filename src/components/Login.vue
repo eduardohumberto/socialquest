@@ -8,7 +8,7 @@
         <br>
         <q-card-main>
           <q-input type="text" v-model="email" float-label="E-mail" ></q-input>
-          <q-input type="password" v-model="password" float-label="Password" ></q-input>
+          <q-input type="password" v-model="password" @keyup="getEnter($event)" float-label="Password" ></q-input>
         </q-card-main>
         <br>
         <q-card-actions>
@@ -80,6 +80,11 @@
       },
       toRegister () {
         this.$router.push('/register')
+      },
+      getEnter (event) {
+        if (event.keyCode === 13){
+          this.onSearch()
+        }
       }
     },
     computed: {

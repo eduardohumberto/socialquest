@@ -1,4 +1,4 @@
-import { sharedRef } from '../config/references'
+import { sharedRef, questsRef } from '../config/references'
 
 export const uniqueId = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -7,14 +7,19 @@ export const uniqueId = () => {
   })
 }
 
-export const isAllowedQuest = async (quest, user) => {
+export const isAllowedQuest = async (quest, user, index) => {
   return new Promise((resolve, reject) => {
     if (quest.isShared && quest.user !== user.uid) {
       // verify if user is allowed if the quest is private
-      sharedRef.orderByChild('user').equalTo(user.uid).on('value', (snapshot) => {
+      sharedRef.orderByChild('quest').equalTo(index).on('value', (snapshot) => {
         let val = snapshot.val()
         if (val) {
-          resolve(true)
+          for (let i in val) {
+            if (val[i].user === user.uid) {
+              resolve(true)
+            }
+          }
+          resolve('error')
         }
         else {
           resolve('error')
@@ -23,6 +28,16 @@ export const isAllowedQuest = async (quest, user) => {
     }
     else {
       resolve(true)
+    }
+  })
+}
+
+export const parseAutocomplete = (array) => {
+  return array.map(user => {
+    return {
+      label: '@' + user.username,
+      avatar: (user.avatar) ? user.avatar : '/statics/user-default.png',
+      value: user.uid
     }
   })
 }
