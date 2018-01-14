@@ -83,7 +83,7 @@
       },
       getEnter (event) {
         if (event.keyCode === 13){
-          this.onSearch()
+          this.login()
         }
       }
     },

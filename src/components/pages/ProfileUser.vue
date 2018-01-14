@@ -21,13 +21,12 @@
 <script>
   import { QSpinner,Events } from 'quasar'
   import ListQuest from '../common/ListQuest.vue'
-  import { questsRef } from '../../config/references'
-  import store from '../../store/store'
+  import { questsRef, usersRef } from '../../config/references'
 
   export default {
     components: {
       ListQuest,
-      QSpinner,
+      QSpinner
     },
     firebase: {
       quests: questsRef
@@ -35,23 +34,33 @@
     data () {
       return {
         isReady: false,
-        results: []
+        results: [],
+        user: null
       }
     },
     created () {
       let self = this
       self.changeTitle()
-      this.$firebaseRefs.quests.orderByChild('user').equalTo(store.state['auth'].user.uid).on('value', function(snapshot) {
-        self.isReady = true
-        let onlyPublished = {}
-        let allUserQuests = snapshot.val()
-        for (let index in allUserQuests) {
-          if (allUserQuests[index].status === 'published' && (!allUserQuests[index].isShared) ) {
-            onlyPublished[index] = allUserQuests[index]
+      if (this.$route.params) {
+        usersRef.orderByChild('uid').equalTo(this.$route.params.uid).on('value', (snapshot) => {
+          let user = snapshot.val()
+          if (user) {
+            let key = Object.keys(user)[0]
+            self.user = user[key]
+            self.$firebaseRefs.quests.orderByChild('user').equalTo(this.$route.params.uid).on('value', function(snapshot) {
+              self.isReady = true
+              let onlyPublished = {}
+              let allUserQuests = snapshot.val()
+              for (let index in allUserQuests) {
+                if (allUserQuests[index].status === 'published' && (!allUserQuests[index].isShared) ) {
+                  onlyPublished[index] = allUserQuests[index]
+                }
+              }
+              self.results = onlyPublished
+            })
           }
-        }
-        self.results = onlyPublished
-      })
+        })
+      }
     },
     methods: {
       changeTitle () {
@@ -62,10 +71,10 @@
         })
       },
       getUserName () {
-        return this.$store.getters['auth/getUser'].username
+        return this.user.username
       },
       getAvatar () {
-        return (this.$store.getters['auth/getUser'].avatar) ? this.$store.getters['auth/getUser'].username : false
+        return (this.user.avatar) ? this.user.avatar : false
       },
       hasResults () {
         return Object.keys(this.results).length > 0

@@ -16,7 +16,7 @@
         <q-item-side icon="home" />
         <q-item-main label="Home" sublabel="Retornar a página inical" />
       </q-side-link>
-      <q-side-link item to="/app/my-profile">
+      <q-side-link item :to="'/app/profile/' + getUserUID">
         <q-item-side icon="account_circle" />
         <q-item-main label="Meu perfil" sublabel="Veja como os usuarios veem seu perfil" />
       </q-side-link>
@@ -28,10 +28,10 @@
         <q-item-side icon="insert_chart" />
         <q-item-main label="Pareto" sublabel="80 / 20 Chart" />
       </q-side-link-->
-      <q-side-link item to="/app/obc">
+      <!--q-side-link item to="/app/obc">
         <q-item-side icon="info" />
         <q-item-main label="Info" sublabel="Informações da aplicação" />
-      </q-side-link>
+      </q-side-link-->
       <div class="q-item q-item-division relative-position q-item-link" @click="logout">
         <div class="q-item-side q-item-side-left q-item-section">
           <i aria-hidden="true" class="q-item-icon q-icon material-icons">power_settings_new</i>
@@ -70,13 +70,16 @@
       QSideLink,
       QBtn
     },
-    computed:{
-      getEmail(){
+    computed: {
+      getEmail () {
         return this.$store.getters['auth/getUser'].username
+      },
+      getUserUID () {
+        return this.$store.getters['auth/getUser'].uid
       }
     },
     methods:{
-      logout(){
+      logout (){
         this.$store.dispatch('auth/logout')
       }
     }

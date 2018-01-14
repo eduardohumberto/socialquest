@@ -1,24 +1,26 @@
 <template>
-  <q-list v-if="isReady && results">
-    <q-item
-      v-for="quest,index in results"
-      :key="index"
-      class="cursor-pointer"
-    >
-      <q-item-side v-if="isSelectedByUser(quest)"  icon="done" bg-color="green"/>
-      <q-item-side v-else  icon="help" />
-      <q-item-main
-        @click="singleQuest(index,quest)"
+  <div style="width: 500px; max-width: 90vw;">
+    <q-list v-if="isReady && results">
+      <q-item
+        v-for="quest,index in results"
+        :key="index"
+        class="cursor-pointer"
       >
-        <q-item-tile label lines="1">{{ quest.name }}</q-item-tile>
-        <q-item-tile sublabel lines="1">{{ quest.hashtag_0 | hashtag }} {{ quest.hashtag_1 | hashtag }} {{ quest.hashtag_2 | hashtag }}</q-item-tile>
-      </q-item-main>
-      <q-item-side right>
-        <span>{{ quest.countVotes }} <q-item-tile icon="whatshot" color="red" /></span>
+        <q-item-side v-if="isSelectedByUser(quest)"  icon="done" bg-color="green"/>
+        <q-item-side v-else  icon="help" />
+        <q-item-main
+          @click="singleQuest(index,quest)"
+        >
+          <q-item-tile label lines="1">{{ quest.name }}</q-item-tile>
+          <q-item-tile sublabel lines="1">{{ quest.hashtag_0 | hashtag }} {{ quest.hashtag_1 | hashtag }} {{ quest.hashtag_2 | hashtag }}</q-item-tile>
+        </q-item-main>
+        <q-item-side right>
+          <span>{{ quest.countVotes }} <q-item-tile icon="whatshot" color="red" /></span>
 
-      </q-item-side>
-    </q-item>
+        </q-item-side>
+      </q-item>
   </q-list>
+  </div>
 </template>
 <script>
   import {

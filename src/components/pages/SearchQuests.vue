@@ -10,7 +10,7 @@
                    leave-active-class="animated fadeOut"
                    mode="out-in">
         <list-quest v-if="results" :results="results" :isReady="isReady"></list-quest>
-        <list-user v-else-if="users" :isReady="isReady" :results="users"  />
+        <list-user-normal v-else-if="users.length > 0" :isReady="isReady" :results="users"  />
         <h5 v-else>Nenhuma busca ou nada encontrado :(</h5>
       </transition>
     </div>
@@ -20,14 +20,14 @@
   import { QInput,Events } from 'quasar'
   import { questsRef, usersRef } from '../../config/references'
   import ListQuest from '../common/ListQuest.vue'
-  import ListUser from '../common/ListUser.vue'
+  import ListUserNormal from '../common/ListUserNormal.vue'
   import { isAllowedQuest, parseAutocomplete } from '../../helpers/helpers'
 
   export default {
     components: {
       QInput,
       ListQuest,
-      ListUser
+      ListUserNormal
     },
     data () {
       return {

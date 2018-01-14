@@ -32,6 +32,8 @@ import 'quasar-extras/ionicons'
 import 'quasar-extras/fontawesome'
 import 'quasar-extras/animate'
 import store from './store/store'
+import { AddressbarColor } from 'quasar'
+AddressbarColor.set('blue')
 
 /* eslint-disable no-new */
 new Vue({
