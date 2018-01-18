@@ -25,7 +25,9 @@
           </q-item-main>
       </q-item>
     </q-list>
-    <h5 v-else>Nenhuma notificação :(</h5>
+    <div v-else class="layout-padding docs-input row justify-center">
+      <h5 >Nenhuma notificação :(</h5>
+    </div>
   </div>
 </template>
 <script>

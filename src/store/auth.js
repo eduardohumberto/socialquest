@@ -1,15 +1,7 @@
 import firebase from 'firebase'
 import router from '../router'
 import { usersRef } from '../config/references'
-
-const saveLocal = (token, user) => {
-  const now = new Date()
-  const expirationDate = new Date(now.getTime() + 3600 * 1000)
-  localStorage.setItem('token', token)
-  localStorage.setItem('user', JSON.stringify(user))
-  localStorage.setItem('expirationDate', expirationDate)
-  return expirationDate
-}
+import { saveLocal } from '../helpers/helpers'
 
 export default {
   namespaced: true,
@@ -62,7 +54,7 @@ export default {
                   saveLocal(responseUser.refreshToken, user[index])
                   resolve(user[index])
                 }
-              });
+              })
             },
             error => {
               reject(error.message)
@@ -93,10 +85,14 @@ export default {
     },
     storeUser ({state,commit}, userData) {
       if (state.user) {
-        return false;
+        return false
       }
       let user = usersRef.push(userData)
       commit('storeUser', userData)
+    },
+    externalLogin ({commit}, userData) {
+      commit('storeUser', userData.user)
+      saveLocal(userData.refreshToken, userData.user)
     }
   },
   getters: {

@@ -46,7 +46,7 @@
     },
     data () {
       return {
-        user: this.$store.getters['auth/getUser'],
+        user: this.$store.getters['auth/getUser']
       }
     },
     filters: {

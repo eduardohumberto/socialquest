@@ -7,7 +7,7 @@
 </template>
 <script>
   import { Events } from 'quasar'
-  import { questsRef } from '../../config/references'
+  import { questsRef,usersRef } from '../../config/references'
   import ListQuest from '../common/ListQuest.vue'
 
   export default {
@@ -46,7 +46,19 @@
           subtitle: 'As Quests mais votadas pelos usuários',
           obj: true
         })
-      }
+      },
+      async fetchAvatar (uid) {
+        return new Promise( (resolve,reject) =>{
+          usersRef.orderByChild('uid').equalTo(uid).on('value', (snap) => {
+            let val = snap.val()
+            if (val) {
+              let key = Object.keys(val)[0]
+              resolve((val[key].avatar) ? val[key].avatar : '/statics/user-default.png')
+            }
+            resolve('/statics/user-default.png')
+          })
+        })
+      },
     }
   }
 </script>

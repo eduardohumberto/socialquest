@@ -41,3 +41,12 @@ export const parseAutocomplete = (array) => {
     }
   })
 }
+
+export const saveLocal = (token, user) => {
+  const now = new Date()
+  const expirationDate = new Date(now.getTime() + 3600 * 1000)
+  localStorage.setItem('token', token)
+  localStorage.setItem('user', JSON.stringify(user))
+  localStorage.setItem('expirationDate', expirationDate)
+  return expirationDate
+}

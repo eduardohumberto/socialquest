@@ -1,6 +1,8 @@
 <template>
   <div class="layout-padding docs-input row justify-center">
-    <div style="width: 600px; max-width: 100vw;">
+    <div
+      v-if="isReady"
+      style="width: 600px; max-width: 100vw;">
       <div class="row">
         <div class="col-2">
           <img v-if="!getAvatar()" src="~assets/user-default.png" class="avatar">
@@ -16,6 +18,7 @@
       <list-quest v-if="hasResults()" :results="results" :isReady="isReady"></list-quest>
       <h5 class="justify-center" v-else>Ops... Nenhuma Quest encontrada :(</h5>
     </div>
+    <q-spinner color="teal-4" size="90px"  v-else/>
   </div>
 </template>
 <script>

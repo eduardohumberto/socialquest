@@ -6,8 +6,9 @@
         :key="index"
         class="cursor-pointer"
       >
-        <q-item-side v-if="isSelectedByUser(quest)"  icon="done" bg-color="green"/>
-        <q-item-side v-else  icon="help" />
+        <!--q-item-side v-if="isSelectedByUser(quest)"  icon="done" bg-color="green"/>
+        <q-item-side v-else  icon="help" /-->
+        <q-item-side :avatar="getAvatar(quest.user)"/>
         <q-item-main
           @click="singleQuest(index,quest)"
         >
@@ -35,6 +36,7 @@
     QChip,
     QPopover
   } from 'quasar'
+  import { usersRef } from '../../config/references'
 
   export default {
     props: ['results', 'isReady'],
@@ -70,6 +72,8 @@
         }
 
         return false
+      },
+      getAvatar (uid) {
       },
       singleQuest (uid,quest) {
         this.$store.dispatch('quest/setSingleQuest', uid)

@@ -13,6 +13,7 @@
         <br>
         <q-card-actions>
           <q-btn @click="login" color="primary" class="round full-width">Login</q-btn>
+          <q-btn @click="loginGmail" color="red" class="round full-width margin-min">Usar gmail</q-btn>
           <q-btn @click="toRegister" color="secondary" class="round full-width margin-min">Cadastre-se</q-btn>
         </q-card-actions>
       </q-card>
@@ -36,6 +37,8 @@
     Toast,
     Loading
   } from 'quasar'
+  import firebase from 'firebase'
+  import { gmail } from '../config/providers'
 
   export default {
     name: 'login',
@@ -60,6 +63,10 @@
       }
     },
     methods: {
+      loginGmail () {
+        firebase.auth().signInWithRedirect(gmail)
+        Loading.show()
+      },
       login () {
         if (this.password === '' || this.email === '') {
           Toast.create('Email e senha são obrigatórios')
