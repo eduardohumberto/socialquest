@@ -39,6 +39,10 @@
   } from 'quasar'
   import firebase from 'firebase'
   import { gmail } from '../config/providers'
+  import { usersRef, db } from '../config/references'
+  import { saveLocal } from '../helpers/helpers'
+  import store from '../store/store'
+  import router from '../router'
 
   export default {
     name: 'login',
@@ -64,8 +68,29 @@
     },
     methods: {
       loginGmail () {
-        firebase.auth().signInWithRedirect(gmail)
-        Loading.show()
+        // firebase.auth().signInWithRedirect(gmail)
+        firebase.auth().signInWithPopup(gmail).then(function(result) {
+          if (result.user) {
+            usersRef.orderByChild('uid').equalTo(result.user.uid).on('value', (snap) => {
+              let val = snap.val()
+              if (val) {
+                let objUpdte = {}
+                let key = Object.keys(val)
+                let path = 'users/' + key + '/avatar'
+                objUpdte[path] = result.user.photoURL
+                db.ref().update(objUpdte)
+                store.dispatch('auth/externalLogin', {user: val[key], refreshToken: result.user.refreshToken})
+              }
+              else {
+                let username = result.user.email.split('@')[0]
+                let newUser = {uid: result.user.uid, username: username, email: result.user.email, avatar: result.user.photoURL}
+                store.dispatch('auth/storeUser', newUser)
+                saveLocal(result.user.refreshToken, newUser)
+              }
+              router.push('/app')
+            })
+          }
+        })
       },
       login () {
         if (this.password === '' || this.email === '') {

@@ -55,7 +55,7 @@
               let onlyPublished = {}
               let allUserQuests = snapshot.val()
               for (let index in allUserQuests) {
-                if (allUserQuests[index].status === 'published' && (!allUserQuests[index].isShared) ) {
+                if (allUserQuests[index].status === 'published' && (!allUserQuests[index].isShared)) {
                   onlyPublished[index] = allUserQuests[index]
                 }
               }

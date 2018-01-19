@@ -24,13 +24,14 @@
     created () {
       let self = this
       this.changeTitle()
-      this.$firebaseRefs.quests.orderByChild('countVotes').limitToLast(25).on('value', function(snapshot) {
+      this.$firebaseRefs.quests.orderByChild('countVotes').limitToLast(25).on('value', async function(snapshot) {
         self.isReady = true
         let onlyPublished = {}
         let allUserQuests = snapshot.val()
         for (let index in allUserQuests) {
-          if (allUserQuests[index].status === 'published') {
+          if (allUserQuests[index].status === 'published' && (!allUserQuests[index].isShared)) {
             onlyPublished[index] = allUserQuests[index]
+            onlyPublished[index].avatar = await self.fetchAvatar(allUserQuests[index].user)
           }
         }
         self.results = onlyPublished

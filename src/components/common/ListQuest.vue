@@ -8,7 +8,7 @@
       >
         <!--q-item-side v-if="isSelectedByUser(quest)"  icon="done" bg-color="green"/>
         <q-item-side v-else  icon="help" /-->
-        <q-item-side :avatar="getAvatar(quest.user)"/>
+        <q-item-side :avatar="getAvatar(quest)"/>
         <q-item-main
           @click="singleQuest(index,quest)"
         >
@@ -73,7 +73,8 @@
 
         return false
       },
-      getAvatar (uid) {
+      getAvatar (quest) {
+        return (quest.avatar) ? quest.avatar : '/statics/user-default.png'
       },
       singleQuest (uid,quest) {
         this.$store.dispatch('quest/setSingleQuest', uid)
